@@ -1,0 +1,30 @@
+body{
+  margin: 10px;
+}
+
+.custom-btn{
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-rounded{
+  border-radius: 12px;
+}
+
+.custom-size{
+  box-sizing: content-box;
+  margin: 0px 4px;
+  width: 256px;
+  height: 32px;
+  padding: 6px 12px;
+}
+
+/* Icons */
+  .plus-icon{
+    font-size: 1.7rem;
+  }
+  .trash-icon{
+    font-size: 1.2rem;
+  }
