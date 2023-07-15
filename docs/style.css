@@ -1,30 +1,93 @@
-body{
-  margin: 10px;
+:root{
+  /* Colors */
+  --dark: #212529;
+  --light: #f8f9fa;
+  --width: 256px;
+  --margin: 10px;
 }
 
-.custom-btn{
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--dark);
+  margin: var(--margin) calc(var(--margin)/2);
+  display: grid;
+  grid-auto-flow: column; 
+  overflow-x: auto;
+  justify-content: left;
+}
+
+#add-list-btn{
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.custom-rounded{
+  border: 1px solid var(--light);
+  color: var(--light);
   border-radius: 12px;
+  padding: 6px 12px;
+  width: var(--width);
+  min-height: 32px;
+  height: fit-content;
+  margin-left: calc(var(--margin)/2);
+  margin-right: calc(var(--margin)/2);
 }
 
-.custom-size{
-  box-sizing: content-box;
-  margin: 0px 4px;
-  width: 256px;
-  height: 32px;
+.list{
+  border: 1px solid var(--light);
+  color: var(--light);
+  border-radius: 12px;
   padding: 6px 12px;
+  min-width: var(--width); 
+  width: fit-content;
+  display: grid;
+  grid-template-areas: 
+    "name buttons"
+    "card card";
+  min-height: 32px;
+  height: fit-content;
+  margin-left: calc(var(--margin)/2);
+  margin-right: calc(var(--margin)/2);
+}
+
+.name{
+  grid-area: name;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.buttons{
+  grid-area: buttons;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+
+.card{
+  grid-area: card;
+  border: 1px solid var(--light);
+  color: var(--light);
+  border-radius: 12px;
+  /*margin: var(--margin);*/
+  padding: 6px 12px;
+  min-width: var(--width);
+  width: fit-content; 
+  min-height: 32px;
+  height: fit-content;
+  display: grid;
+  grid-template-areas: 
+    "name buttons"
+    "card card";
 }
 
 /* Icons */
   .plus-icon{
     font-size: 1.7rem;
+    color: var(--light);
+    cursor: pointer;
   }
   .trash-icon{
     font-size: 1.2rem;
+    color: var(--light);
+    cursor: pointer;
   }
