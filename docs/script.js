@@ -1,5 +1,4 @@
 // Todo
-  // Delete button
   // Autofocus when creating new list/card
   // Local storage for lists
   // Enter to create new list like trello
@@ -12,6 +11,7 @@
   // Can have multiple different pages
   // Can change the theme and other settings
 
+// Add new list
 let addListBtn = document.querySelector("#add-list-btn")
 addListBtn.addEventListener("click", () => {
   addListBtn.insertAdjacentHTML("beforebegin", `
@@ -26,7 +26,12 @@ addListBtn.addEventListener("click", () => {
   `)
 })
 
-document.querySelector("body").addEventListener("click", (event) => {
+// Add and delete button
+let modal = document.querySelector("#modal")
+let cancel = document.querySelector("#cancel")
+let ok = document.querySelector("#ok")
+let bodyContainer = document.querySelector("#body-container")
+document.body.addEventListener("click", (event) => {
   if(event.target.className.includes("plus-icon") && event.target.parentNode.className.includes("buttons")){
     event.target.parentNode.parentNode.insertAdjacentHTML("beforeend", `
       <div class="card">
@@ -40,10 +45,21 @@ document.querySelector("body").addEventListener("click", (event) => {
     `)
   }
   if(event.target.className.includes("trash-icon")){
-    console.log("trash-icon")
+    modal.style.visibility = "visible"; // Show modal
+    bodyContainer.style.pointerEvents = "none" // Don't allow clicking the background
+    cancel.addEventListener("click", () => {
+      modal.style.visibility = "hidden";
+      bodyContainer.style.pointerEvents = "auto" // Allow clicking the background
+    })
+    ok.addEventListener("click", () => {
+      event.target.parentNode.parentNode.remove()
+      modal.style.visibility = "hidden";
+      bodyContainer.style.pointerEvents = "auto" // Allow clicking the background
+    })
   }
 })
 
+// Resize text input
 function autoResize(textarea) {
   textarea.style.height = "fit-content";
   textarea.style.height = textarea.scrollHeight + "px"
