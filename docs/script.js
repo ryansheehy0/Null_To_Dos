@@ -1,5 +1,4 @@
 // Todo
-  // Autofocus when creating new list/card
   // Local storage for lists
   // Enter to create new list like trello
     // Disable default behavior of enter key for textarea. Shift enter to create new line.
@@ -24,6 +23,8 @@ addListBtn.addEventListener("click", () => {
       <!-- More cards -->
     </div>
   `)
+  let lists = document.querySelectorAll(".name")
+  lists[lists.length - 1].focus()
 })
 
 // Add and delete button
@@ -32,8 +33,10 @@ let cancel = document.querySelector("#cancel")
 let ok = document.querySelector("#ok")
 let bodyContainer = document.querySelector("#body-container")
 document.body.addEventListener("click", (event) => {
+  // Add button
   if(event.target.className.includes("plus-icon") && event.target.parentNode.className.includes("buttons")){
-    event.target.parentNode.parentNode.insertAdjacentHTML("beforeend", `
+    let parentListOrCard = event.target.parentNode.parentNode
+    parentListOrCard.insertAdjacentHTML("beforeend", `
       <div class="card">
         <textarea class="name" oninput="autoResize(this)" rows="1"></textarea>
         <div class="buttons">
@@ -43,18 +46,24 @@ document.body.addEventListener("click", (event) => {
         <!-- More cards -->
       </div>
     `)
+    parentListOrCard.children[parentListOrCard.children.length - 1].querySelector(".name").focus()
   }
+  // Delete button
   if(event.target.className.includes("trash-icon")){
     modal.style.visibility = "visible"; // Show modal
     bodyContainer.style.pointerEvents = "none" // Don't allow clicking the background
-    cancel.addEventListener("click", () => {
-      modal.style.visibility = "hidden";
-      bodyContainer.style.pointerEvents = "auto" // Allow clicking the background
-    })
-    ok.addEventListener("click", () => {
+    // OK is pressed
+    let okEventListener = () => {
       event.target.parentNode.parentNode.remove()
       modal.style.visibility = "hidden";
       bodyContainer.style.pointerEvents = "auto" // Allow clicking the background
+    }
+    ok.addEventListener("click", okEventListener)
+    // Cancel is pressed
+    cancel.addEventListener("click", () => {
+      modal.style.visibility = "hidden";
+      bodyContainer.style.pointerEvents = "auto" // Allow clicking the background
+      ok.removeEventListener("click", okEventListener);
     })
   }
 })
