@@ -1,15 +1,19 @@
 // Todo
+  // Drag cards around
 // Paid options. Cheaper than $5 a month
   // Work with other people like google docs
   // Can have multiple different pages
   // Can change the theme and other settings
     // Toggle spell checking
 // Possible features
-  // Drag cards around
   // Enter to create new list like trello
     // Disable default behavior of enter key for textarea. Shift enter to create new line.
     // Enter key presses the parent's add/plus button. Need autofocus done before this feature
   // Make logo and maybe rename
+
+// import
+let uuid = window.uuid
+let waitForDOM = window.waitForDOM
 
 let bodyHTML = localStorage.getItem("body")
 if(bodyHTML === null){
@@ -20,9 +24,10 @@ if(bodyHTML === null){
 
 // Add new list
 let addListBtn = document.querySelector("#add-list-btn")
-addListBtn.addEventListener("click", () => {
-  addListBtn.insertAdjacentHTML("beforebegin", `
-    <div class="list">
+addListBtn.addEventListener("click", async () => {
+  let listUUID = "a" + uuid.getUUID() // querySelector needs letter in front for some reason
+  addListBtn.insertAdjacentHTML("beforebegin",`
+    <div class="list" id="${listUUID}">
       <textarea class="name" oninput="autoResize(this)" rows="1" spellcheck="false"></textarea>
       <div class="buttons">
         <i class="bi bi-plus plus-icon"></i>
@@ -31,10 +36,12 @@ addListBtn.addEventListener("click", () => {
       <!-- More cards -->
     </div>
   `)
-  localStorage.setItem("body", document.body.innerHTML)
+  // Get the newly created list
+    let list = await waitForDOM.waitForElm(`#${listUUID}`)
   // Set focus
-  let lists = document.querySelectorAll(".name")
-  lists[lists.length - 1].focus()
+    list.querySelector(".name").focus()
+  // Set local storage
+    localStorage.setItem("body", document.body.innerHTML)
 })
 
 // Add and delete button
@@ -42,12 +49,13 @@ let modal = document.querySelector("#modal")
 let cancel = document.querySelector("#cancel")
 let ok = document.querySelector("#ok")
 let bodyContainer = document.querySelector("#body-container")
-document.body.addEventListener("click", (event) => {
-  // Add button
+document.body.addEventListener("click", async (event) => {
+  // Add button. Don't include the plus sign on Add another list button.
   if(event.target.className.includes("plus-icon") && event.target.parentNode.className.includes("buttons")){
-    let parentListOrCard = event.target.parentNode.parentNode
+    let parentListOrCard = event.target.parentNode.parentNode// Gets which button the plus icon is in
+    let cardUUID = "a" + uuid.getUUID() // querySelector needs letter in front for some reason
     parentListOrCard.insertAdjacentHTML("beforeend", `
-      <div class="card">
+      <div class="card" draggable="true" id="${cardUUID}">
         <textarea class="name" oninput="autoResize(this)" rows="1" spellcheck="false"></textarea>
         <div class="buttons">
           <i class="bi bi-plus plus-icon"></i>
@@ -56,8 +64,12 @@ document.body.addEventListener("click", (event) => {
         <!-- More cards -->
       </div>
     `)
-    parentListOrCard.children[parentListOrCard.children.length - 1].querySelector(".name").focus()
-    localStorage.setItem("body", document.body.innerHTML)
+    // Get newly created card
+      let card = await waitForDOM.waitForElm(`#${cardUUID}`)
+    // Set focus
+      card.querySelector(".name").focus()
+    // Set local storage
+      localStorage.setItem("body", document.body.innerHTML)
   }
   // Delete button
   if(event.target.className.includes("trash-icon")){
@@ -87,3 +99,32 @@ function autoResize(textarea) {
   textarea.textContent = textarea.value
   localStorage.setItem("body", document.body.innerHTML)
 }
+
+// Set dragging events
+(function setDraggingEvents() {
+  // Add to lists
+  let lists = Array.from(document.querySelectorAll(".list"))
+  lists.forEach(list => {
+    list.addEventListener("dragover", (event) => {event.preventDefault()})
+    list.addEventListener("drop", (event) => {
+      event.preventDefault()
+      //Get id of dropped card
+        let cardId = event.dataTransfer.getData("id")
+      //Get what was dropped
+        let card = document.querySelector(`#${cardId}`)
+      //Get where it was dropped
+        console.log(event.target)
+      //Add it to the list
+      //Remove from its original location
+    })
+  })
+
+  // Add to cards
+  let cards = Array.from(document.querySelectorAll(".card"))
+  cards.forEach(card => {
+    card.addEventListener("dragstart", event => {
+      let cardID = card.id
+      event.dataTransfer.setData("id", cardID)
+    })
+  })
+})()
