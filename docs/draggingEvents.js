@@ -82,6 +82,7 @@ function setCardsEvents(){
     })
     card.addEventListener("dragend", () => {
         card.classList.remove("dragging")
+        localStorage.setItem("body", document.body.innerHTML)
     })
   })
 }
