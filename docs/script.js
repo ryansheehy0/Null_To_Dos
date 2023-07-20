@@ -1,5 +1,8 @@
 // Todo
   // Drag cards around
+    // Learn and comment
+    // Put cards in other cards
+  // Change things from let to const and clean code
 // Paid options. Cheaper than $5 a month
   // Work with other people like google docs
   // Can have multiple different pages
@@ -11,9 +14,10 @@
     // Enter key presses the parent's add/plus button. Need autofocus done before this feature
   // Make logo and maybe rename
 
-// import
-let uuid = window.uuid
-let waitForDOM = window.waitForDOM
+// imports
+const uuid = window.uuid
+const waitForDOM = window.waitForDOM
+const draggingEvents = window.draggingEvents
 
 let bodyHTML = localStorage.getItem("body")
 if(bodyHTML === null){
@@ -100,31 +104,4 @@ function autoResize(textarea) {
   localStorage.setItem("body", document.body.innerHTML)
 }
 
-// Set dragging events
-(function setDraggingEvents() {
-  // Add to lists
-  let lists = Array.from(document.querySelectorAll(".list"))
-  lists.forEach(list => {
-    list.addEventListener("dragover", (event) => {event.preventDefault()})
-    list.addEventListener("drop", (event) => {
-      event.preventDefault()
-      //Get id of dropped card
-        let cardId = event.dataTransfer.getData("id")
-      //Get what was dropped
-        let card = document.querySelector(`#${cardId}`)
-      //Get where it was dropped
-        console.log(event.target)
-      //Add it to the list
-      //Remove from its original location
-    })
-  })
-
-  // Add to cards
-  let cards = Array.from(document.querySelectorAll(".card"))
-  cards.forEach(card => {
-    card.addEventListener("dragstart", event => {
-      let cardID = card.id
-      event.dataTransfer.setData("id", cardID)
-    })
-  })
-})()
+draggingEvents.setDraggingEvents()

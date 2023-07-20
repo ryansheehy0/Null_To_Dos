@@ -108,6 +108,11 @@ body{
   background: var(--card);
 }
 
+.dragging{
+  border: 1px solid var(--background);
+  background: var(--list);
+}
+
 /* Icons */
   .plus-icon{
     font-size: 1.7rem;
