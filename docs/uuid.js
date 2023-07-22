@@ -8,8 +8,8 @@ function matchesAnId(ids, match){
 }
 
 // Used to guarantee a unique identifier
-let getUUID = () => {
-  let allIds = Array.from(document.querySelectorAll("body [id]"))
+const getUUID = () => {
+  let allIds = [...document.querySelectorAll("body [id]")]
   allIds = allIds.map((element) => {
     return element.id
   })

@@ -22,7 +22,6 @@ function getCardsPos(list, y){
 
   let cardsPos = []
 
-  //let offset = Number.POSITIVE_INFINITY
   draggableCards.forEach(card => {
     const box = card.getBoundingClientRect()
     const isAbove = y - box.top < 0 ? true : false
@@ -39,9 +38,15 @@ function setListsEvents(){
   lists.forEach(list => {
     list.addEventListener("dragover", event => {
       event.preventDefault() // Changes the cursor
+
+
       const cardsPos = getCardsPos(list, event.clientY)
-      console.log(cardsPos)
       const draggingCard = document.querySelector(".dragging")
+
+      if(cardsPos.length === 0){ // If the list doesn't have any children
+        list.insertAdjacentElement("beforeend", draggingCard)
+        return
+      }
 
       let layer = 1
       for(let i=0; i < cardsPos.length; i++){
@@ -54,16 +59,13 @@ function setListsEvents(){
               continue
             }else{
               cardPos.card.insertAdjacentElement("beforeend", draggingCard)
-              console.log("child of: " + cardPos.card.querySelector(".name").textContent)
               break
             }
           }else if(cardPos.isAbove){
             cardPos.card.insertAdjacentElement("beforebegin", draggingCard)
-            console.log("before: " + cardPos.card.querySelector(".name").textContent)
             break
           }else if(cardPos.isBelow && cardPos.isLast){
             cardPos.card.insertAdjacentElement("afterend", draggingCard)
-            console.log("after: " + cardPos.card.querySelector(".name").textContent)
             break
           }
         }

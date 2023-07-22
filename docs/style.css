@@ -1,14 +1,11 @@
 :root{
   /* Colors */
-  --dark: #212529;
-  --dark: #000000;
-  --light: #f8f9fa;
   --light: #ffffff;
-
   --background: #000000;
   --list: #101204;
   --card: #22272b;
 
+  /* Other settings */
   --width: 256px;
   --margin: 10px;
 }
@@ -16,7 +13,9 @@
 body{
   font-family: Arial, Helvetica, sans-serif;
   background: var(--background);
-  margin: var(--margin) calc(var(--margin)/2);
+  padding: var(--margin) calc(var(--margin)/2);
+  margin: 0;
+  height: calc(100vh - 20px);
 }
 
 #body-container{
