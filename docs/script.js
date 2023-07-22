@@ -1,5 +1,4 @@
 // Todo
-  // Change things from let to const and clean code
 // Paid options. Cheaper than $5 a month
   // Work with other people like google docs
   // Can have multiple different pages
@@ -20,6 +19,19 @@ const bodyHTML = localStorage.getItem("body")
 if(bodyHTML !== null){
   document.body.innerHTML = bodyHTML
 }
+
+// Allow clicking in textarea cards
+function clickInTextareas(){
+  const textareas = [...document.querySelectorAll("textarea")]
+  textareas.forEach(textarea => {
+    textarea.addEventListener("click", event => {
+      const cursorPosition = document.caretPositionFromPoint(event.clientX, event.clientY).offset
+      textarea.selectionStart = cursorPosition
+      textarea.selectionEnd = cursorPosition
+    })
+  })
+}
+clickInTextareas()
 
 // Add new list
 const addListBtn = document.querySelector("#add-list-btn")
@@ -72,6 +84,8 @@ document.body.addEventListener("click", async (event) => {
       card.querySelector(".name").focus()
     // Set dragging events for the newly created card
      draggingEvents.setDraggingEvents()
+    // Set clicking in text area events
+      clickInTextareas()
     // Set local storage
       localStorage.setItem("body", document.body.innerHTML)
   }
@@ -103,18 +117,5 @@ function autoResize(textarea) {
   textarea.textContent = textarea.value // Sets the value in the dom so it can be saved with local storage
   localStorage.setItem("body", document.body.innerHTML)
 }
-
-// Allow clicking in textarea cards
-function clickInTextareas(){
-  const textareas = [...document.querySelectorAll("textarea")]
-  textareas.forEach(textarea => {
-    textarea.addEventListener("click", event => {
-      const cursorPosition = document.caretPositionFromPoint(event.clientX, event.clientY).offset
-      textarea.selectionStart = cursorPosition
-      textarea.selectionEnd = cursorPosition
-    })
-  })
-}
-clickInTextareas()
 
 draggingEvents.setDraggingEvents()
