@@ -1,4 +1,5 @@
 function layer(card, list){
+  // Gets the layer of the card. Layers start at 1
   let layer = 1
   let parent = card.parentElement
   while(parent !== list){
@@ -9,20 +10,23 @@ function layer(card, list){
 }
 
 function isLast(card){
-  const parentId = card.parentElement.id
-  const siblings = [...card.parentElement.querySelectorAll(`#${parentId} > .card:not(.dragging)`)]
-  if(siblings[siblings.length - 1] === card){
+  // Sees if the card is the last of its sibling cards
+  const parent = card.parentElement
+  const parentId = parent.dataset.uuid
+  const siblings = [...parent.querySelectorAll(`[data-uuid="${parentId}"] > .card:not(.dragging)`)]
+  if(siblings[siblings.length - 1] /*Last Element*/ === card){
     return true
   }
   return false
 }
 
 function getCardsPos(list, y){
-  const draggableCards = [...list.querySelectorAll(".card:not(.dragging)")]
+  const cardsNotBeingDragged = [...list.querySelectorAll(".card:not(.dragging)")]
 
   let cardsPos = []
 
-  draggableCards.forEach(card => {
+  // Gets the position information of all the cards that aren't being dragged
+  cardsNotBeingDragged.forEach(card => {
     const box = card.getBoundingClientRect()
     const isAbove = y - box.top < 0 ? true : false
     const isBelow = y - box.bottom > 0 ? true : false
@@ -30,6 +34,7 @@ function getCardsPos(list, y){
     const hasChildren = card.querySelector(".card:not(.dragging)") !== null
     cardsPos.push({isAbove: isAbove, isBelow: isBelow, isInside: isInside, card: card, layer: layer(card, list), hasChildren: hasChildren, isLast: isLast(card)})
   })
+
   return cardsPos
 }
 
@@ -39,12 +44,16 @@ function setListsEvents(){
     list.addEventListener("dragover", event => {
       event.preventDefault() // Changes the cursor
 
-
-      const cardsPos = getCardsPos(list, event.clientY)
       const draggingCard = document.querySelector(".dragging")
 
+      if(draggingCard.classList.contains("list")){
+        return
+      }
+
+      const cardsPos = getCardsPos(list, event.clientY)
+
       if(cardsPos.length === 0){ // If the list doesn't have any children
-        list.insertAdjacentElement("beforeend", draggingCard)
+        list.insertAdjacentElement("beforeend" /*Last Child*/, draggingCard)
         return
       }
 
@@ -58,14 +67,14 @@ function setListsEvents(){
               layer++
               continue
             }else{
-              cardPos.card.insertAdjacentElement("beforeend", draggingCard)
+              cardPos.card.insertAdjacentElement("beforeend"/*Last Child*/, draggingCard)
               break
             }
           }else if(cardPos.isAbove){
-            cardPos.card.insertAdjacentElement("beforebegin", draggingCard)
+            cardPos.card.insertAdjacentElement("beforebegin"/*Before Element*/, draggingCard)
             break
           }else if(cardPos.isBelow && cardPos.isLast){
-            cardPos.card.insertAdjacentElement("afterend", draggingCard)
+            cardPos.card.insertAdjacentElement("afterend"/*After Element*/, draggingCard)
             break
           }
         }
@@ -89,12 +98,7 @@ function setCardsEvents(){
   })
 }
 
-function setDraggingEvents() {
+window.cardDraggingEventsInit = () => {
   setListsEvents()
   setCardsEvents()
-}
-
-// Export
-window.draggingEvents = {
-  setDraggingEvents
 }

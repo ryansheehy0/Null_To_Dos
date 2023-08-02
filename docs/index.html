@@ -4,8 +4,21 @@
     <title>Null Todo App</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--CSS-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="./style.css" />
+    <!--JS-->
+    <script src="./utils/getNewUUID.js" defer></script>
+    <script src="./utils/resizeTextarea.js" defer></script>
+
+    <script src="./inits/addNewListInit.js" defer></script>
+    <script src="./inits/cardDraggingEventsInit.js" defer></script>
+    <script src="./inits/clickInTextareasInit.js" defer></script>
+    <script src="./inits/listDraggingEventsInit.js" defer></script>
+    <script src="./inits/plusButtonInit.js" defer></script>
+    <script src="./inits/trashButtonInit.js" defer></script>
+
+    <script src="./script.js" defer></script>
   </head>
   <body> <!-- Contains the visible content -->
     <div id="body-container">
@@ -21,10 +34,5 @@
       <button id="cancel">Cancel</button>
       <button id="ok">Ok</button>
     </div>
-
-  <script src="./draggingEvents.js"></script>
-  <script src="./waitForDOM.js"></script>
-  <script src="./uuid.js"></script>
-  <script src="./script.js"></script>
   </body>
 </html>

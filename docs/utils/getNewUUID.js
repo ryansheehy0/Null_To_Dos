@@ -8,20 +8,15 @@ function matchesAnId(ids, match){
 }
 
 // Used to guarantee a unique identifier
-const getUUID = () => {
-  let allIds = [...document.querySelectorAll("body [id]")]
+window.getNewUUID = () => {
+  let allIds = [...document.querySelectorAll("[data-uuid]")]
   allIds = allIds.map((element) => {
-    return element.id
+    return element.dataset.uuid
   })
   let uuid = crypto.randomUUID()
-  //if the generated uuid is the same as an id then regenerate another uuid
+  // If the generated uuid is the same as an id then regenerate another uuid
   while(matchesAnId(allIds, uuid)){
     uuid = crypto.randomUUID()
   }
   return uuid
-}
-
-// Export
-window.uuid = {
-  getUUID
 }
