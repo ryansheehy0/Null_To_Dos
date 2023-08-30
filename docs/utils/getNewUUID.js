@@ -1,4 +1,4 @@
-function matchesAnId(ids, match){
+function matchesAnId(ids, match) {
   ids.forEach(id => {
     if(id === match){
       return true
@@ -8,7 +8,7 @@ function matchesAnId(ids, match){
 }
 
 // Used to guarantee a unique identifier
-window.getNewUUID = () => {
+function getNewUUID() {
   let allIds = [...document.querySelectorAll("[data-uuid]")]
   allIds = allIds.map((element) => {
     return element.dataset.uuid
@@ -20,3 +20,5 @@ window.getNewUUID = () => {
   }
   return uuid
 }
+
+window.getNewUUID = getNewUUID

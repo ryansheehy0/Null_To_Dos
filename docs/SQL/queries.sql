@@ -1,0 +1,3 @@
+-- Get array of user's boards in order {id, name}
+-- Get array of board's lists in order {id, name}
+-- Get array of objects list's cards in order {id, name, [{id, name}, {id, name}]}
