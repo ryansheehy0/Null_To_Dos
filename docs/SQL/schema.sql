@@ -1,4 +1,4 @@
-drop if exists null_todos;
+drop database if exists null_todos;
 create database null_todos;
 
 use null_todos;
@@ -28,14 +28,14 @@ create table lists (
   id int unsigned not null primary key auto_increment,
   name varchar(255) not null,
   previous_list_id int unsigned,
-  foreign key (previous_list_id) references lists(previous_list_id),
+  foreign key (previous_list_id) references lists(id),
   board_id int unsigned not null,
   foreign key (board_id) references boards(id)
 );
 
 create table cards (
   id int unsigned not null primary key auto_increment,
-  name var(255) not null,
+  name varchar(255) not null,
   previous_card_id int unsigned,
   foreign key (previous_card_id) references cards(id),
   parent_card_id int unsigned,
