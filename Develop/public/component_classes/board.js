@@ -22,18 +22,11 @@ function Board(){
   this.removeList = function(list){
     // Remove list from lists
     lists = lists.filter(item => {
-      if(item === list){
-        return false
-      }
+      if(item === list) return false
     })
     // Remove list form board
     element.removeChild(list)
   }
-
-  this.getJson = function(){
-    // Return the json
-  }
-
 }
 
-window.Board
+window.Board = Board

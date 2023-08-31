@@ -1,5 +1,3 @@
-//Todo: Add comments
-
 // Create a new board
 const board = new window.Board()
 

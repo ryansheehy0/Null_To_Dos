@@ -5,7 +5,8 @@ use null_todos;
 
 create table users (
   email varchar(255) not null primary key,
-  hashed_password varchar(255) not null
+  hashed_password varchar(255) not null,
+  salt varchar(255) not null
 );
 
 -- To set the order of elements you

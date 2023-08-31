@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head> <!-- Contains metadata -->
+    <title>Null Todos</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root{
+        /* Dark and Light mode colors */
+          /* Text */
+            --dark-text: #fff;
+            --light-text: #000;
+          /* First Color. Background*/
+            --dark-1st: #000;
+            --light-1st: #fff;
+          /* Secondary Color. Lists*/
+            --dark-2nd: #282828;
+            --light-2nd: #d7d7d7;
+          /* Third Color. Cards*/
+            --dark-3rd: #505050;
+            --light-3rd: #afafaf;
+
+        /* Other settings */
+          --border-radius: 12px;
+          --width: 256px;
+          --margin: 10px;
+      }
+      body{
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--dark-1st);
+        color: var(--dark-text);
+        margin: 0;
+        height: 100%;
+      }
+      .center-in-screen{
+        position: fixed;
+        top: 50vh;
+        left: 50vw;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+    <!--JS-->
+    <script src="./index.js" defer></script>
+  </head>
+  <body> <!-- Contains the visible content -->
+
+    <!-- Add List Button-->
+    <div id="add-list-btn" style="cursor: pointer;
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  color: var(--dark-text);
+                                  border-radius: var(--border-radius);
+                                  padding: 6px 12px;
+                                  width: var(--width);
+                                  min-height: 32px;
+                                  height: fit-content;
+                                  margin-left: calc(var(--margin)/2);
+                                  margin-right: calc(var(--margin)/2);
+                                  background: var(--dark-1st);">
+      <img src="./assets/plus.svg">
+      Add another list
+    </div>
+
+    <!-- Delete Modal-->
+    <div id="delete-modal" class="center-in-screen" style="
+                                  background: var(--dark-1st);
+                                  color: var(--dark-text);
+                                  border: none;
+                                  border-radius: var(--border-radius);
+                                  width: var(--width);
+                                  display: grid;
+                                  grid-template-columns: 2fr 1fr 1fr;
+                                  align-items: center;
+                                  height: 32px;
+                                  padding: 6px 12px;
+                                  visibility: hidden;">
+      <h2 style="margin: 0;
+                 display: inline;
+                 font-size: 1rem;
+      ">Delete</h2>
+      <button id="cancel" style="
+      ">Cancel</button>
+      <button id="ok" style="
+      ">Ok</button>
+    </div>
+
+
+  #cancel, #ok{
+    background: var(--card);
+    border: none;
+    font-size: 1rem;
+    color: var(--light);
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0;
+    margin-left: var(--margin);
+  }
+
+
+
+  </body>
+</html>
