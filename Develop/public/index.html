@@ -6,45 +6,67 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      :root{
-        /* Dark and Light mode colors */
-          /* Text */
-            --dark-text: #fff;
-            --light-text: #000;
-          /* First Color. Background*/
-            --dark-1st: #000;
-            --light-1st: #fff;
-          /* Secondary Color. Lists*/
-            --dark-2nd: #282828;
-            --light-2nd: #d7d7d7;
-          /* Third Color. Cards*/
-            --dark-3rd: #505050;
-            --light-3rd: #afafaf;
-
-        /* Other settings */
-          --border-radius: 12px;
-          --width: 256px;
-          --margin: 10px;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <!--
+      Colors:
+        Text color
+          dark: #FFFFFF
+          light: #000000
+        1st Color
+          dark: #000000
+          light: #FFFFFF
+        2nd Color
+          dark: #282828
+          light: #D7D7D7
+        3rd Color
+          dark: #505050
+          light: #AFAFAF
+    -->
     <!--JS-->
     <script src="./index.js" defer></script>
   </head>
-  <body> <!-- Contains the visible content -->
+  <body class="dark-mode custom-1st-color font-sans"> <!-- Contains the visible content -->
 
     <!-- Add List Button-->
-    <div id="add-list-btn">
-      <img src="./assets/plus.svg">
+    <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 rounded-xl h-fit">
+      <img src="./assets/plus.svg" class="custom-img-color w-8 h-8">
       Add another list
     </div>
 
     <!-- Delete Modal-->
-    <div id="delete-modal">
+    <div id="delete-modal" class="fixed t-1/2 l-1/2 transform -translate-x-1/2 -translate-y-1/2 custom-2nd-color custom-text-color border-none rounded-xl w-64">
       <h2>Delete</h2>
       <button id="cancel">Cancel</button>
       <button id="ok">Ok</button>
     </div>
+
+    <!--
+
+  #modal{
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    height: 32px;
+    padding: 6px 12px;
+    visibility: hidden;
+  }
+  #modal > h2{
+    margin: 0;
+    display: inline;
+    font-size: 1rem;
+  }
+  #cancel, #ok{
+    background: var(--card);
+    border: none;
+    font-size: 1rem;
+    color: var(--light);
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0;
+    margin-left: var(--margin);
+  }
+
+    -->
 
   </body>
 </html>
