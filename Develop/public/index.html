@@ -25,35 +25,24 @@
     <!--JS-->
     <script src="./index.js" defer></script>
   </head>
-  <body class="dark-mode custom-1st-color font-sans"> <!-- Contains the visible content -->
+  <body class="dark-mode custom-1st-color font-sans h-screen w-screen"> <!-- Contains the visible content -->
 
     <!-- Add List Button-->
-    <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 rounded-xl h-fit">
+    <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 rounded-xl h-fit box-content">
       <img src="./assets/plus.svg" class="custom-img-color w-8 h-8">
       Add another list
     </div>
 
     <!-- Delete Modal-->
-    <div id="delete-modal" class="fixed t-1/2 l-1/2 transform -translate-x-1/2 -translate-y-1/2 custom-2nd-color custom-text-color border-none rounded-xl w-64">
-      <h2>Delete</h2>
-      <button id="cancel">Cancel</button>
-      <button id="ok">Ok</button>
+    <div id="delete-modal" class="fixed inset-x-1/2 inset-y-1/2 -translate-x-1/2 -translate-y-1/2 custom-2nd-color custom-text-color custom-1st-border rounded-xl w-64 grid custom-grid-col-2-1-1 items-center h-8 py-1.5 px-3 box-content custom-text-color">
+      <h2 class="m-0 inline text-base">Delete</h2>
+      <button id="cancel" class="custom-3rd-color border-none text-base rounded pointer m-0 ml-2.5">Cancel</button>
+      <button id="ok" class="custom-3rd-color border-none text-base rounded pointer m-0 ml-2.5">Ok</button>
     </div>
 
     <!--
-
   #modal{
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    align-items: center;
-    height: 32px;
-    padding: 6px 12px;
     visibility: hidden;
-  }
-  #modal > h2{
-    margin: 0;
-    display: inline;
-    font-size: 1rem;
   }
   #cancel, #ok{
     background: var(--card);
