@@ -1,4 +1,3 @@
-window.List = List
 function List(){
   let cards = []
   // Draggable events
@@ -30,3 +29,5 @@ function List(){
     })
   }
 }
+
+window.List = List

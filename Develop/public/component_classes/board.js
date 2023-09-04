@@ -1,14 +1,5 @@
-function Board(){
+function Board(element){
   let lists = []
-
-  let css = `
-    width: 100%;
-    height: 100%;
-  `
-
-  let element = window.elementFromHTML(`
-    <div class="board" style="${css}"></div>
-  `)
 
   this.getElement = function(){return element}
 

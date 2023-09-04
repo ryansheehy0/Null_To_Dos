@@ -1,8 +1,5 @@
 // Create a new board
-const board = new window.Board()
-
-// Add board to body
-document.body.insertAdjacentElement("afterbegin"/*First Child*/, board.getElement())
+const board = new window.Board(document.querySelector(`#board`))
 
 // Get the add list button
 const addListBtn = document.querySelector("#add-list-btn")

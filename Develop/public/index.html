@@ -7,55 +7,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" type="text/css" href="/style.css" />
-    <!--
-      Colors:
-        Text color
-          dark: #FFFFFF
-          light: #000000
-        1st Color
-          dark: #000000
-          light: #FFFFFF
-        2nd Color
-          dark: #282828
-          light: #D7D7D7
-        3rd Color
-          dark: #505050
-          light: #AFAFAF
-    -->
     <!--JS-->
+      <!--Utils-->
+        <script src="./utils/elementFromHTML.js" defer></script>
+      <!--Components-->
+        <script src="./component_classes/board.js" defer></script>
+        <script src="./component_classes/list.js" defer></script>
+        <script src="./component_classes/card.js" defer></script>
     <script src="./index.js" defer></script>
   </head>
-  <body class="dark-mode custom-1st-color font-sans h-screen w-screen"> <!-- Contains the visible content -->
+  <body class="dark-mode custom-1st-color font-sans h-screen w-screen flex"> <!-- Contains the visible content -->
 
-    <!-- Add List Button-->
-    <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 rounded-xl h-fit box-content">
-      <img src="./assets/plus.svg" class="custom-img-color w-8 h-8">
-      Add another list
+    <div id="navbar" class="w-8 h-screen custom-2nd-color box-content px-1.5 mr-1"></div>
+
+    <div id="board" class="w-screen h-screen grid grid-flow-col overflow-x-auto justify-start">
+
+      <!-- Add List Button-->
+      <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 my-2 rounded-xl h-fit box-content">
+        <img src="./assets/plus.svg" class="custom-img-color w-8 h-8">
+        Add another list
+      </div>
     </div>
 
     <!-- Delete Modal-->
-    <div id="delete-modal" class="fixed inset-x-1/2 inset-y-1/2 -translate-x-1/2 -translate-y-1/2 custom-2nd-color custom-text-color custom-1st-border rounded-xl w-64 grid custom-grid-col-2-1-1 items-center h-8 py-1.5 px-3 box-content custom-text-color">
+    <div id="delete-modal" class="fixed inset-x-1/2 inset-y-1/2 -translate-x-1/2 -translate-y-1/2 custom-2nd-color custom-text-color custom-1st-border rounded-xl w-64 grid custom-grid-col-2-1-1 items-center h-8 py-1.5 px-3 box-content custom-text-color invisible">
       <h2 class="m-0 inline text-base">Delete</h2>
       <button id="cancel" class="custom-3rd-color border-none text-base rounded pointer m-0 ml-2.5">Cancel</button>
       <button id="ok" class="custom-3rd-color border-none text-base rounded pointer m-0 ml-2.5">Ok</button>
     </div>
-
-    <!--
-  #modal{
-    visibility: hidden;
-  }
-  #cancel, #ok{
-    background: var(--card);
-    border: none;
-    font-size: 1rem;
-    color: var(--light);
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0;
-    margin-left: var(--margin);
-  }
-
-    -->
 
   </body>
 </html>
