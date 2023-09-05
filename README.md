@@ -8,3 +8,7 @@ A simple todo app that allows nested todos.
 - Drag and drop todo cards like trello.
 - Rename todos with one click like trello.
 - When trash icon is clicked a popup modal is show which confirms the delete.
+
+- When changing components its important to ensure that their credentials check.
+  - Someone could change the UUID in the dom and try and change someone else's card names
+- Change "s and 's to `s

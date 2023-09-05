@@ -1,5 +1,8 @@
-// Create a new board
-const board = new window.Board(document.querySelector(`#board`))
+// Create a new board object
+const board = new window.Board()
+
+// Adds board to dom
+board.load()
 
 // Get the add list button
 const addListBtn = document.querySelector("#add-list-btn")

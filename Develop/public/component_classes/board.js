@@ -1,5 +1,18 @@
-function Board(element){
+function Board(){
   let lists = []
+
+  // Get lists and cards from db
+
+  let element = window.elementFromHTML(`
+    <div id="board" class="w-screen h-screen grid grid-flow-col overflow-x-auto justify-start">
+
+      <!-- Add List Button-->
+      <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 my-2 rounded-xl h-fit box-content">
+        <img src="./assets/plus.svg" class="custom-img-color w-8 h-8">
+        Add another list
+      </div>
+    </div>
+  `)
 
   this.getElement = function(){return element}
 
@@ -7,7 +20,7 @@ function Board(element){
     // Add list to lists
     lists.push(list)
     // Put list inside board at the end
-    element.insertAdjacentElement("beforeend"/*Last Child*/, list.getElement())
+    element.insertAdjacentElement(`beforeend` /*Last Child*/, list.getElement())
   }
 
   this.removeList = function(list){
@@ -17,6 +30,16 @@ function Board(element){
     })
     // Remove list form board
     element.removeChild(list)
+  }
+
+  this.load = function(){
+    // Remove existing board
+    const existingBoard = document.querySelector(`#board`)
+    if(existingBoard) existingBoard.remove()
+    // Get the navbar
+    const navbar = document.querySelector(`#navbar`)
+    // Add this board
+    navbar.insertAdjacentElement(`afterend` /*After Element*/, element)
   }
 }
 

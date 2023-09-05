@@ -2,10 +2,10 @@ function List(){
   let cards = []
   // Draggable events
 
-  let id = window.getNewUUID()
+  let uuid = window.getNewUUID()
 
   let element = window.elementFromHTML(`
-    <div class="list" draggable="true" data-uuid="${id}">
+    <div class="list" draggable="true" data-uuid="${uuid}">
       <textarea class="name" oninput="window.resizeTextarea(this)" rows="1" spellcheck="false"></textarea>
       <div class="buttons">
         <i class="bi bi-plus plus-icon"></i>
