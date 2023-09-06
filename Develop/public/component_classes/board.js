@@ -4,9 +4,8 @@ function Board(){
   // Get lists and cards from db
 
   let element = window.elementFromHTML(`
-    <div id="board" class="w-screen h-screen grid grid-flow-col overflow-x-auto justify-start">
+    <div data-name="board" class="w-screen h-screen grid grid-flow-col overflow-x-auto justify-start">
 
-      <!-- Add List Button-->
       <div id="add-list-btn" class="cursor-pointer flex items-center justify-center custom-text-color custom-2nd-color w-64 min-h-8 py-1.5 px-3 mx-1 my-2 rounded-xl h-fit box-content">
         <img src="./assets/plus.svg" class="custom-img-color w-8 h-8">
         Add another list
@@ -19,8 +18,10 @@ function Board(){
   this.addList = function(list){
     // Add list to lists
     lists.push(list)
-    // Put list inside board at the end
-    element.insertAdjacentElement(`beforeend` /*Last Child*/, list.getElement())
+    // Get add-list-btn inside board
+    const addListBtn = element.querySelector(`#add-list-btn`)
+    // Put list inside board
+    addListBtn.insertAdjacentElement(`beforebegin` /*Above*/, list.getElement())
   }
 
   this.removeList = function(list){

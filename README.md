@@ -12,3 +12,5 @@ A simple todo app that allows nested todos.
 - When changing components its important to ensure that their credentials check.
   - Someone could change the UUID in the dom and try and change someone else's card names
 - Change "s and 's to `s
+
+- Change colors to tailwind colors. There is a good reasons why they are the way they are.
