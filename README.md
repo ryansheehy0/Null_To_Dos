@@ -14,3 +14,7 @@ A simple todo app that allows nested todos.
 - Change "s and 's to `s
 
 - Change colors to tailwind colors. There is a good reasons why they are the way they are.
+
+## Todo
+- Add dragging
+- Side bar stuff
