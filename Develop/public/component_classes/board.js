@@ -13,7 +13,7 @@ function Board(){
 
   // Event listeners
   addListBtn.addEventListener("click", () => {
-    const list = new window.List()
+    const list = new window.List(this)
     this.addList(list)
     list.focus()
   })

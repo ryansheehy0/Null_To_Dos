@@ -1,6 +1,4 @@
-const { text } = require("express")
-
-function Item(){
+function Item(parentItem){
   // Variables
   let uuid = window.getNewUUID()
 
@@ -20,14 +18,20 @@ function Item(){
   let plus = element.querySelector(`img[src*="plus"]`)
   let trash = element.querySelector(`img[src*="trash"]`)
 
-  // Event listeners
-  plus.addEventListener("click", () => {
-    const card = new window.Card()
-    this.addCard(card)
+  // Helper functions
+  function newCard(parent){
+    const card = new window.Card(parent)
+    parent.addCard(card)
     card.focus()
-  })
+  }
 
-  trash.addEventListener("click", () => {
+  function newList(board){
+    const list = new window.List(board)
+    board.addList(list)
+    list.focus()
+  }
+
+  function deleteSelf(){
     // If it is already red remove the list
     if([...trash.classList].includes('custom-red-color')){
       element.remove()
@@ -35,14 +39,50 @@ function Item(){
     }
     // Change trash to red
     trash.classList.add('custom-red-color')
+  }
+
+  // Event listeners
+  plus.addEventListener("click", () => {
+    newCard(this)
   })
 
-  document.addEventListener("click", (event) => {
+  // Delete card
+  trash.addEventListener("click", () => {
+    deleteSelf()
+  })
+
+  document.addEventListener("click", event => {
     if(event.target !== trash){
       if([...trash.classList].includes('custom-red-color')){
         trash.classList.remove('custom-red-color')
       }
     }
+  })
+
+  // Keyboard shortcuts
+  let isShift = false
+  textarea.addEventListener("keydown", event => {
+    switch(event.key){
+      case "Shift":
+        isShift = true; break
+      case "Delete":
+        deleteSelf(); break
+      case "Tab":
+        trash.classList.remove('custom-red-color'); break
+      case "Enter":
+        event.preventDefault()
+        if(isShift){
+          newCard(this); return
+        }
+        if(parentItem.getElement().dataset.name === "board"){
+          newList(parentItem); return
+        }
+        newCard(parentItem)
+    }
+  })
+
+  textarea.addEventListener("keyup", event => {
+    if(event.key === "Shift") isShift = false
   })
 
   // Methods

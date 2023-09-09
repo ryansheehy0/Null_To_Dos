@@ -18,3 +18,15 @@ A simple todo app that allows nested todos.
 ## Todo
 - Add dragging
 - Side bar stuff
+- SQL/db stuff
+- When textarea is in focus spellchecking. When not in focus not spell checking.
+
+## Keyboard Shortcuts
+
+| Keys          | Description           |
+|---------------|-----------------------|
+| Enter         | New sibling card/list |
+| Shift + Enter | New child card        |
+| Tab           | Next Focus            |
+| Shift + Tab   | Prev Focus            |
+| Delete        | Delete card/list      |
