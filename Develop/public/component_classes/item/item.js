@@ -46,7 +46,7 @@ function Item(parentItem){
     newCard(this)
   })
 
-  // Delete card
+    // Delete card
   trash.addEventListener("click", () => {
     deleteSelf()
   })
@@ -59,7 +59,7 @@ function Item(parentItem){
     }
   })
 
-  // Keyboard shortcuts
+    // Keyboard shortcuts
   let isShift = false
   textarea.addEventListener("keydown", event => {
     switch(event.key){
@@ -83,6 +83,15 @@ function Item(parentItem){
 
   textarea.addEventListener("keyup", event => {
     if(event.key === "Shift") isShift = false
+  })
+
+    // Spellcheck when textarea in focus and no spellcheck when out of focus
+  textarea.addEventListener("focus", () => {
+    textarea.setAttribute("spellcheck", "true")
+  })
+
+  textarea.addEventListener("blur", () => {
+    textarea.setAttribute("spellcheck", "false")
   })
 
   // Methods

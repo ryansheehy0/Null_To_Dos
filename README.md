@@ -19,7 +19,7 @@ A simple todo app that allows nested todos.
 - Add dragging
 - Side bar stuff
 - SQL/db stuff
-- When textarea is in focus spellchecking. When not in focus not spell checking.
+- Add enter key adding new list if no item is in focus
 
 ## Keyboard Shortcuts
 
