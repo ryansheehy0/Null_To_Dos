@@ -11,11 +11,26 @@ function Board(){
 
   const addListBtn = element.querySelector(`[data-name="add-list-btn"]`)
 
-  // Event listeners
-  addListBtn.addEventListener("click", () => {
+  // Helper factions
+  newList = () => {
     const list = new window.List(this)
     this.addList(list)
     list.focus()
+  }
+
+  // Event listeners
+  addListBtn.addEventListener("click", () => {
+    newList()
+  })
+
+  document.addEventListener("keydown", (event) => {
+    console.log(document.activeElement)
+    console.log(document.activeElement === document.body)
+    if(document.activeElement !== document.body) return
+    if(event.key === "Enter"){
+      event.preventDefault()
+      newList()
+    }
   })
 
   // Methods

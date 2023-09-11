@@ -19,7 +19,6 @@ A simple todo app that allows nested todos.
 - Add dragging
 - Side bar stuff
 - SQL/db stuff
-- Add enter key adding new list if no item is in focus
 
 ## Keyboard Shortcuts
 
