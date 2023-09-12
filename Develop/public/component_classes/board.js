@@ -24,8 +24,6 @@ function Board(){
   })
 
   document.addEventListener("keydown", (event) => {
-    console.log(document.activeElement)
-    console.log(document.activeElement === document.body)
     if(document.activeElement !== document.body) return
     if(event.key === "Enter"){
       event.preventDefault()
