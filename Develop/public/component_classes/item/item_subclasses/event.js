@@ -72,6 +72,31 @@ function Event(item, plus, trash, textarea, element, parentItem){
     textarea.addEventListener("blur", () => {
       textarea.setAttribute("spellcheck", "false")
     })
+
+  // Dragging
+    let initialX
+    let initialY
+    let isMouseDown = false
+    element.addEventListener("mousedown", (event) => {
+      initialX = event.clientX
+      initialY = event.clientY
+      isMouseDown = true
+      console.log("mousedown")
+    })
+
+    textarea.addEventListener("dragstart", (event) => {
+      event.preventDefault()
+    })
+
+    document.addEventListener("mousemove", (event) => {
+      if(!isMouseDown) return
+      console.log(`moving mouse`)
+    })
+
+    document.addEventListener("mouseup", () => {
+      isMouseDown = false
+      console.log("mouseup")
+    })
 }
 
 window.Event = Event
