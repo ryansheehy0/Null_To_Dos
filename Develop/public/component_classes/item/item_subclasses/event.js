@@ -21,21 +21,27 @@ function Event(item, plus, trash, textarea, element, parentItem){
     }
 
   // Plus icon
-    plus.addEventListener("click", () => {
+    plus.addEventListener("mouseup", () => {
+      if(isDragging) return
       newCard(item)
+      isDragging = false
     })
 
   // Trash icon
-    trash.addEventListener("click", () => {
+    trash.addEventListener("mouseup", () => {
+      if(isDragging) return
       deleteSelf()
+      isDragging = false
     })
 
-    document.addEventListener("click", event => {
+    document.addEventListener("mouseup", event => {
+      if(isDragging) return
       if(event.target !== trash){
         if([...trash.classList].includes('custom-red-color')){
           trash.classList.remove('custom-red-color')
         }
       }
+      isDragging = false
     })
 
   // Keyboard shortcuts
@@ -77,11 +83,12 @@ function Event(item, plus, trash, textarea, element, parentItem){
     let initialX
     let initialY
     let isMouseDown = false
-    element.addEventListener("mousedown", (event) => {
+    let isDragging = false
+    element.addEventListener("mousedown", async (event) => {
+      event.stopPropagation() // Prevent lower items from moving
       initialX = event.clientX
       initialY = event.clientY
       isMouseDown = true
-      console.log("mousedown")
     })
 
     textarea.addEventListener("dragstart", (event) => {
@@ -90,12 +97,14 @@ function Event(item, plus, trash, textarea, element, parentItem){
 
     document.addEventListener("mousemove", (event) => {
       if(!isMouseDown) return
-      console.log(`moving mouse`)
+      isDragging = true
+      const x = event.clientX - initialX
+      const y = event.clientY - initialY
+      element.style.transform = `translate(${x}px, ${y}px)`
     })
 
-    document.addEventListener("mouseup", () => {
+    document.addEventListener("mouseup", (event) => {
       isMouseDown = false
-      console.log("mouseup")
     })
 }
 
