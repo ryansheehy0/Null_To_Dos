@@ -11,6 +11,8 @@ A simple todo app that allows nested todos.
     - Someone could change the UUID in the dom and try and change someone else's card names
 - Add accessability things
 - Change colors to tailwind colors. There is a good reasons why they are the way they are.
+- Use link to specify which user and which board
+- Do not put user input in the DOM. The user can input html and break stuff.
 
 ## Keyboard Shortcuts
 

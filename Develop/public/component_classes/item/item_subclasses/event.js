@@ -20,6 +20,7 @@ function Event(item, plus, trash, textarea, element, parentItem){
       trash.classList.add('custom-red-color')
     }
 
+    /*
   // Plus icon
     plus.addEventListener("mouseup", () => {
       if(isDragging) return
@@ -36,13 +37,14 @@ function Event(item, plus, trash, textarea, element, parentItem){
 
     document.addEventListener("mouseup", event => {
       if(isDragging) return
+      isDragging = false
       if(event.target !== trash){
         if([...trash.classList].includes('custom-red-color')){
           trash.classList.remove('custom-red-color')
         }
       }
-      isDragging = false
     })
+    */
 
   // Keyboard shortcuts
     let isShift = false
@@ -86,8 +88,11 @@ function Event(item, plus, trash, textarea, element, parentItem){
     let isDragging = false
     element.addEventListener("mousedown", async (event) => {
       event.stopPropagation() // Prevent lower items from moving
-      initialX = event.clientX
-      initialY = event.clientY
+      //initialX = event.clientX
+      //initialY = event.clientY
+      initialX = event.clientX - element.offsetX
+      initialY = event.clientY - element.offsetY
+      console.log(`${event.offsetX}, ${event.offsetY}. `, event)
       isMouseDown = true
     })
 
@@ -98,13 +103,33 @@ function Event(item, plus, trash, textarea, element, parentItem){
     document.addEventListener("mousemove", (event) => {
       if(!isMouseDown) return
       isDragging = true
+      /*
       const x = event.clientX - initialX
       const y = event.clientY - initialY
-      element.style.transform = `translate(${x}px, ${y}px)`
+      element.style.transform = `translate(0px, 0px)`
+      */
+      // Create a new element that 
+      element.style.position = "absolute"
+      element.style.left = event.clientX + "px"
+      element.style.top = event.clientY  + "px"
+      element.style.transform = `translate(-${initialX}px, -${initialY}px)`
     })
 
     document.addEventListener("mouseup", (event) => {
       isMouseDown = false
+      if(!isDragging){
+        switch(event.target){
+          case plus: newCard(item); return;
+          case trash: deleteSelf(); return;
+          default:
+            if([...trash.classList].includes('custom-red-color')){
+              trash.classList.remove('custom-red-color')
+            }
+            return
+        }
+      }else{
+        isDragging = false
+      }
     })
 }
 
