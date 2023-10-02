@@ -23,10 +23,11 @@ function Board(){
     newList()
   })
 
+  // Enter key with nothing focused creates new list
   document.addEventListener("keydown", (event) => {
-    if(document.activeElement !== document.body) return
+    if(document.activeElement !== document.body) return // Exit if something else is in focus
     if(event.key === "Enter"){
-      event.preventDefault()
+      event.preventDefault() // Prevent new lines in newly created lists
       newList()
     }
   })
@@ -41,7 +42,7 @@ function Board(){
 
   this.load = function(){
     // Remove existing board
-    const existingBoard = document.querySelector(`#board`)
+    const existingBoard = document.querySelector(`[data-name="board"]`)
     if(existingBoard) existingBoard.remove()
     // Get the navbar
     const navbar = document.querySelector(`#navbar`)
