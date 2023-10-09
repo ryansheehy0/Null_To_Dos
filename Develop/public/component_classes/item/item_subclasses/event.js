@@ -33,11 +33,14 @@ function Event(item, plus, trash, textarea, element, parentItem){
         case "Enter":
           event.preventDefault()
           if(isShift){
+            // Create child card
             newCard(item); return
           }
           if(parentItem.getElement().dataset.name === "board"){
+            // Create new sibling list if a list is in focus
             newList(parentItem); return
           }
+          // Create new sibling card if a card is in focus
           newCard(parentItem)
       }
     })
@@ -51,55 +54,21 @@ function Event(item, plus, trash, textarea, element, parentItem){
       textarea.setAttribute("spellcheck", "true")
     })
 
-    textarea.addEventListener("blur", () => {
+    textarea.addEventListener("blur", () => {// When textarea looses focu
       textarea.setAttribute("spellcheck", "false")
     })
 
-  // Dragging
-    let initialX
-    let initialY
-    let isMouseDown = false
-    let isDragging = false
-    element.addEventListener("mousedown", async (event) => {
-      event.stopPropagation() // Prevent lower items from moving
-      const rect = element.getBoundingClientRect()
-      // Get x,y coordinates inside element
-      initialX = event.clientX - rect.left + 3.5
-      initialY = event.clientY - rect.top + 7
-      isMouseDown = true
-    })
-
-    textarea.addEventListener("dragstart", (event) => {
-      event.preventDefault()
-    })
-
-    document.addEventListener("mousemove", (event) => {
-      if(!isMouseDown) return
-      isDragging = true
-
-      // Prevent mouse from moving out of the screen
-
-      // Add styles to element
-      element.style.position = "absolute"
-      element.style.left = event.clientX + "px"
-      element.style.top = event.clientY  + "px"
-      element.style.transform = `translate(-${initialX}px, -${initialY}px)`
-      element.classList.add("z-1")
-    })
-
-    document.addEventListener("mouseup", (event) => {
-      isMouseDown = false
-      if(!isDragging){
-        switch(event.target){
-          case plus: newCard(item); return;
-          case trash: deleteSelf(); return;
-          default: trash.classList.remove('custom-red-color'); return;
-        }
-      }else{
-        isDragging = false
-        element.classList.remove("z-1")
+  // When mouse is up and element isn't being dragged
+    element.addEventListener("mouseupNotDragging", (event) => {
+      switch(event.detail.target){
+        case plus: newCard(item); return;
+        case trash: deleteSelf(); return;
+        default: trash.classList.remove('custom-red-color'); return;
       }
     })
+
+  // Set the dragging event listeners
+    new window.Dragging(element, textarea)
 }
 
 window.Event = Event

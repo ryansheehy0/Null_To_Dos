@@ -9,7 +9,7 @@ function Item(parentItem){
           this.style.height = this.scrollHeight + "px";
           if(this.value.length > 255){
             this.value = this.value.substr(0, 255)
-          }' rows="1" spellcheck="false" draggable="false" maxlenght="255"></textarea>
+          }' rows="1" spellcheck="false" draggable="false"></textarea>
         <div data-name="buttons" class="flex items-center justify-end" draggable="false">
           <img src="./assets/plus.svg" class="custom-img-color w-8 h-8" draggable="false">
           <img src="./assets/trash.svg" class="custom-img-color w-5 h-5" draggable="false">
@@ -22,12 +22,14 @@ function Item(parentItem){
     let trash = element.querySelector(`img[src*="trash"]`)
     let textarea = element.querySelector(`textarea`)
 
-  new window.Event(this, plus, trash, textarea, element, parentItem) // Set the event listeners
+  // Set the event listeners
+    new window.Event(this, plus, trash, textarea, element, parentItem)
 
   // Methods
     this.getElement = function(){return element}
 
     this.addCard = function(card){
+      // Insert card at the end of the list
       element.insertAdjacentElement(`beforeend` /*Last Child*/, card.getElement())
     }
 
