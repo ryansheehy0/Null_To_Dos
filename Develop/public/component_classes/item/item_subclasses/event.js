@@ -59,16 +59,14 @@ function Event(item, plus, trash, textarea, element, parentItem){
     })
 
   // When mouse is up and element isn't being dragged
-    element.addEventListener("mouseupNotDragging", (event) => {
-      switch(event.detail.target){
+    document.addEventListener("click", (event) => {
+      switch(event.target){
         case plus: newCard(item); return;
         case trash: deleteSelf(); return;
         default: trash.classList.remove('custom-red-color'); return;
       }
     })
 
-  // Set the dragging event listeners
-    new window.Dragging(element, textarea)
 }
 
 window.Event = Event
