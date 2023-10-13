@@ -58,7 +58,6 @@ function Event(item, plus, trash, textarea, element, parentItem){
       textarea.setAttribute("spellcheck", "false")
     })
 
-  // When mouse is up and element isn't being dragged
     document.addEventListener("click", (event) => {
       switch(event.target){
         case plus: newCard(item); return;
@@ -66,6 +65,9 @@ function Event(item, plus, trash, textarea, element, parentItem){
         default: trash.classList.remove('custom-red-color'); return;
       }
     })
+
+  //Add dragging events
+  new window.Dragging(element)
 
 }
 
