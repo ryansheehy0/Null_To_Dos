@@ -48,8 +48,8 @@ function Dragging(element){
       card: undefined,
       cards: []
     }
-    // Get all the item's cards called cardElements
-    const cardElements = item.querySelectorAll('[data-name="card"]')
+    // Get all the item's direct children cards called cardElements
+    const cardElements = item.querySelectorAll(':scope > [data-name="card"]')
     // if there are no children cards then return cards. End case for recursion
     if(cardElements.length === 0) return cards
     // Loop through all the cardElements
@@ -60,7 +60,7 @@ function Dragging(element){
       // Set the cards in the tempObj to getCards(cardElement)
       tempObj.cards = getCards(cardElement)
       // Add tempObj to cards
-      cards.push(tempObj)
+      cards.push({...tempObj})
     }
     // return cards
     return cards
@@ -80,10 +80,17 @@ function Dragging(element){
       if(element === list) continue
       // Get rectangle of looped list
       const listRect = list.getBoundingClientRect()
-      // If mouse is to the left of list put to the left
-      if(xMouse < listRect.left) return list.insertAdjacentElement("beforebegin"/*Before element*/, element)
-      // If last list put to the right
-      if(i === lists.length - 1) return list.insertAdjacentElement("afterend"/*After element*/, element)
+      // Get xCenter of listRect
+      const xCenter = (listRect.left + listRect.right)/2
+      // If mouse is in the left half then put to the right
+      if(xMouse > listRect.left && xMouse < xCenter) return list.insertAdjacentElement("afterend"/*After element*/, element)
+      // If mouse is in the right half then put to the left
+      if(xMouse < listRect.right && xMouse > xCenter) return list.insertAdjacentElement("beforebegin"/*Before element*/, element)
+
+//      // If mouse is to the left of list put to the left
+//      if(xMouse < listRect.left) return list.insertAdjacentElement("beforebegin"/*Before element*/, element)
+//      // If last list put to the right
+//      if(i === lists.length - 1) return list.insertAdjacentElement("afterend"/*After element*/, element)
     }
   }
 
@@ -101,11 +108,11 @@ function Dragging(element){
       // If mouse is inside card
       if(yMouse > cardRect.top && yMouse < cardRect.bottom){
         // If card has sub cards recursion with next card layer
-        if(childrenCards !== 0){
-          cardDragging(yMouse, childrenCards)
+        if(childrenCards.length !== 0){
+          return cardDragging(yMouse, childrenCards)
         }else{
           // If card doesn't have sub cards put dragging card inside
-          card.insertAdjacentElement("beforeend"/*Last child*/, element)
+          return card.insertAdjacentElement("beforeend"/*Last child*/, element)
         }
       }
       // If last card
@@ -132,7 +139,7 @@ function Dragging(element){
       for(let i = 0; i < lists.length; i++){
         const list = lists[i].list
         const listRect = list.getBoundingClientRect()
-        const cards = list.cards
+        const cards = lists[i].cards
         // Find which list the dragging card is in
         if(xMouse > listRect.left && xMouse < listRect.right){
           // If there are cards
@@ -141,7 +148,7 @@ function Dragging(element){
             cardDragging(yMouse, cards)
           }else{
             // If no cards then add dragging card to the end of the list
-            list.insertAdjacentElement("afterbegin"/*First Child*/, element)
+            list.insertAdjacentElement("beforeend"/*Last Child*/, element)
           }
         }
       }
