@@ -1,6 +1,9 @@
-function Item(parentItem){
+import elementFromHTML from "../../utils/elementFromHTML"
+import Event from "./item_subclasses/event"
+
+export default function Item(parentItem){
   // Variables
-    let element = window.elementFromHTML(`
+    let element = elementFromHTML(`
       <div data-name="" class="custom-text-color rounded-xl py-1.5 px-3 min-w-[16rem] w-min grid grid-cols-[auto_auto] min-h-8 h-fit my-2 box-content" draggable="true">
         <textarea class="m-0 flex items-center border-none bg-transparent custom-text-color text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:custom-text-outline" oninput='
           this.style.height = "fit-content";
@@ -21,7 +24,7 @@ function Item(parentItem){
     let textarea = element.querySelector(`textarea`)
 
   // Set the event listeners
-    new window.Event(this, plus, trash, textarea, element, parentItem)
+    new Event(this, plus, trash, textarea, element, parentItem)
 
   // Methods
     this.getElement = function(){return element}
@@ -35,5 +38,3 @@ function Item(parentItem){
       textarea.focus()
     }
 }
-
-window.Item = Item

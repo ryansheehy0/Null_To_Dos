@@ -1,4 +1,4 @@
-function Dragging(element){
+export default function Dragging(element){
   let lists
   /* The structure of lists
   let lists = [
@@ -156,5 +156,3 @@ function Dragging(element){
   })
 
 }
-
-window.Dragging = Dragging

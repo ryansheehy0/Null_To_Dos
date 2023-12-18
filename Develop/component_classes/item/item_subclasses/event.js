@@ -1,13 +1,17 @@
-function Event(item, plus, trash, textarea, element, parentItem){
+import Card from "../item_children/card"
+import List from "../item_children/list"
+import Dragging from "./event_subclasses/dragging"
+
+export default function Event(item, plus, trash, textarea, element, parentItem){
   // Helper functions
     function newCard(parent){
-      const card = new window.Card(parent)
+      const card = new Card(parent)
       parent.addCard(card)
       card.focus()
     }
 
     function newList(board){
-      const list = new window.List(board)
+      const list = new List(board)
       board.addList(list)
       list.focus()
     }
@@ -54,7 +58,7 @@ function Event(item, plus, trash, textarea, element, parentItem){
       textarea.setAttribute("spellcheck", "true")
     })
 
-    textarea.addEventListener("blur", () => {// When textarea looses focu
+    textarea.addEventListener("blur", () => {// When textarea looses focus
       textarea.setAttribute("spellcheck", "false")
     })
 
@@ -67,8 +71,6 @@ function Event(item, plus, trash, textarea, element, parentItem){
     })
 
   //Add dragging events
-  new window.Dragging(element)
+  new Dragging(element)
 
 }
-
-window.Event = Event
