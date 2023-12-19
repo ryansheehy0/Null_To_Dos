@@ -8,17 +8,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkText: "#fff",
-        lightText: "#000",
+        darkText: "#000",
+        lightText: "#fff",
 
         darkBackground: "#000",
         lightBackground: "#fff",
 
-        darkList: "#282828",
-        lightList: "#d7d7d7",
+        darkList: "#505050",
+        lightList: "#afafaf",
 
-        darkCard: "#505050",
-        lightCard: "#afafaf"
+        darkCard: "#787878",
+        lightCard: "#878787",
       },
     },
   },
