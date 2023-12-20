@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --cardHeight: 3.25rem;
-  --cardWidth: 14.25rem;
+  --cardHeight: 2.6rem;
+  --cardWidth: 13rem;
   --cardSpacing: 0.5rem;
-  --iconSize: 2.25rem;
+  --iconSize: calc( var(--cardHeight) - (2 * var(--cardSpacing)) );
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

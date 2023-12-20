@@ -1,5 +1,5 @@
 import Provider from "./utils/context.jsx"
-import Navbar from "./components/Navbar"
+import Navbar from "./components/Navbar/Navbar.js"
 import Board from "./components/Board"
 
 function App() {
