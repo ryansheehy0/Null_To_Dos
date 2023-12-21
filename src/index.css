@@ -4,7 +4,7 @@
 
 :root {
   --cardHeight: 2.6rem;
-  --cardWidth: 13rem;
+  --cardWidth: 14rem;
   --cardSpacing: 0.5rem;
   --iconSize: calc( var(--cardHeight) - (2 * var(--cardSpacing)) );
 
@@ -20,6 +20,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.remove-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.remove-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 a {

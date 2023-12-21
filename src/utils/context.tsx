@@ -10,8 +10,10 @@ export default function Provider({children}){
     open: false
   })
 
+  let uuids: number[] = []
+
   return (
-    <Context.Provider value={{globalState, setGlobalState}} >
+    <Context.Provider value={{uuids, globalState, setGlobalState}} >
       <div className={tm(globalState.theme === "dark" ? "dark" : "")}>
         {children}
       </div>

@@ -1,4 +1,4 @@
-import Provider from "./utils/context.jsx"
+import Provider from "./utils/context.js"
 import Navbar from "./components/Navbar/Navbar.js"
 import Board from "./components/Board"
 
