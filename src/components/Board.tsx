@@ -10,13 +10,9 @@ export default function Board(){
   const {globalState} = useGlobalContext()
   const [lists, setLists] = useState([])
 
-  function onDelete(event): void{
-    console.log(lists.find(event.target))
-  }
-
   function addNewList(){
     const newUUID = getNewUUID(lists)
-    const newList = <Container cardOrList="list" key={newUUID} className="flex-shrink-0"><Item includePlus onDelete={onDelete}/></Container>
+    const newList = <Container cardOrList="list" key={newUUID} className="flex-shrink-0"><Item includePlus setItems={setLists} itemKey={newUUID}/></Container>
     setLists([...lists, newList])
   }
 

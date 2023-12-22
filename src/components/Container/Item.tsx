@@ -5,7 +5,7 @@ import { useState } from "react"
 import Container from "./Container"
 import getNewUUID from "../../utils/getNewUUID"
 
-export default function Item({includePlus, onDelete}: {includePlus: boolean, onDelete: (event) => void}){
+export default function Item({includePlus, setItems, itemKey}){
   const [itemValue, setItemValue] = useState("")
   const [cards, setCards] = useState([])
   const [deleted, setDeleted] = useState(false)
@@ -27,11 +27,13 @@ export default function Item({includePlus, onDelete}: {includePlus: boolean, onD
     setCards([...cards, newCard])
   }
 
-  function deleteSelf(event){
+  function deleteSelf(){
     if(!deleted){
       setDeleted(true)
     }else{
-      onDelete(event)
+      setItems(items => {
+        return items.filter((item) => parseInt(item.key) !== itemKey)
+      })
     }
   }
 
@@ -40,7 +42,7 @@ export default function Item({includePlus, onDelete}: {includePlus: boolean, onD
       <textarea className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={itemValue} onInput={autoTextAreaResizing} rows={1} spellCheck={false} ></textarea>
       <div className="flex items-center justify-end">
         {includePlus ? <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard}/> : ""}
-        <Trash className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={deleteSelf}/>
+        <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} on/>
       </div>
       {cards.map(card => card)}
     </div>
