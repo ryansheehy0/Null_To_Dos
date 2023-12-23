@@ -18,7 +18,7 @@ export default function Navbar(){
 
   function addNewBoard(){
     const newUUID = getNewUUID(boards)
-    const newBoard = <Container cardOrList="card" key={newUUID}><Item includePlus={false}/></Container>
+    const newBoard = <Container cardOrList="card" key={newUUID}><Item includePlus={false} setItems={setBoards} itemKey={newUUID}/></Container>
     setBoards([...boards, newBoard])
   }
 
