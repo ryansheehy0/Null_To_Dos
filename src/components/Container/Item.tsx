@@ -37,7 +37,7 @@ export default function Item({includePlus, setItems, itemKey}){
 
   function addNewCard() {
     const newUUID = getNewUUID(cards)
-    const newCard = <Container cardOrList="card" key={newUUID} className="flex-shrink-0 col-span-2"><Item includePlus setItems={setCards} itemKey={newUUID}/></Container>
+    const newCard = <Container containerType="card" key={newUUID} itemKey={newUUID} className="flex-shrink-0 col-span-2"><Item includePlus setItems={setCards} itemKey={newUUID}/></Container>
     setCards([...cards, newCard])
   }
 

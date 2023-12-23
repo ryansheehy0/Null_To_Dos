@@ -6,7 +6,7 @@ type AddElementProps = {
 
 export default function AddElement({text, ...props}: AddElementProps){
   return (
-    <div className="cursor-pointer flex items-center justify-center text-lightText dark:text-darkText h-4 rounded-xl box-content" {...props}>
+    <div className="flex items-center justify-center text-lightText dark:text-darkText h-4 rounded-xl box-content" {...props}>
       <Plus className="w-[--iconSize] h-[--iconSize]"/>
       {text}
     </div>

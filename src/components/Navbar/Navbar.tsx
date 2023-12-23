@@ -8,17 +8,30 @@ import { useGlobalContext } from "../../utils/context.js"
 import NavIcon from "./NavIcon.js"
 import Container from "../Container/Container.js"
 import AddElement from "../Container/AddElement.js"
-import { useState } from "react"
+import { useState, createRef } from "react"
 import Item from "../Container/Item.js"
 import getNewUUID from "../../utils/getNewUUID.js"
+import { useDrop } from "react-dnd"
 
 export default function Navbar(){
   const {globalState, setGlobalState} = useGlobalContext()
   const [boards, setBoards] = useState([])
+  const [, drop] = useDrop({
+    accept: "board",
+    hover(item, monitor) {
+      console.log(monitor.getClientOffset())
+      console.log(item)
+      console.log(boards[0])
+    }
+  })
 
   function addNewBoard(){
     const newUUID = getNewUUID(boards)
-    const newBoard = <Container cardOrList="card" key={newUUID}><Item includePlus={false} setItems={setBoards} itemKey={newUUID}/></Container>
+    const newBoard = (
+      <Container containerType="board" key={newUUID} itemKey={newUUID}>
+        <Item includePlus={false} setItems={setBoards} itemKey={newUUID}/>
+      </Container>
+    )
     setBoards([...boards, newBoard])
   }
 
@@ -34,10 +47,10 @@ export default function Navbar(){
           )}
           <NavIcon Icon={Upload} rightOffset={"right-[calc(3*var(--cardSpacing)+2*var(--iconSize))]"} />
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} />
-          {/* */}
-          <div className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
+          {/* Boards */}
+          <div ref={drop} className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
             {boards.map(board => board)}
-            <Container cardOrList="card"><AddElement text="Add another board" onClick={addNewBoard}/></Container>
+            <Container containerType="card" onClick={addNewBoard}><AddElement text="Add another board"/></Container>
           </div>
         </>
       ): "" }
