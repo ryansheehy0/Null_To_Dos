@@ -12,7 +12,7 @@ export default function Board(){
 
   function addNewList(){
     const newUUID = getNewUUID(lists)
-    const newList = <Container containerType="list" key={newUUID} itemKey={newUUID} className="flex-shrink-0"><Item includePlus setItems={setLists} itemKey={newUUID}/></Container>
+    const newList = <Container containerType="list" key={newUUID} className="flex-shrink-0"><Item includePlus setItems={setLists} itemKey={newUUID}/></Container>
     setLists([...lists, newList])
   }
 

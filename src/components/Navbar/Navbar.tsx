@@ -8,31 +8,37 @@ import { useGlobalContext } from "../../utils/context.js"
 import NavIcon from "./NavIcon.js"
 import Container from "../Container/Container.js"
 import AddElement from "../Container/AddElement.js"
-import { useState, createRef } from "react"
+import { useState, useRef } from "react"
 import Item from "../Container/Item.js"
 import getNewUUID from "../../utils/getNewUUID.js"
-import { useDrop } from "react-dnd"
 
 export default function Navbar(){
   const {globalState, setGlobalState} = useGlobalContext()
   const [boards, setBoards] = useState([])
-  const [, drop] = useDrop({
-    accept: "board",
-    hover(item, monitor) {
-      console.log(monitor.getClientOffset())
-      console.log(item)
-      console.log(boards[0])
-    }
-  })
+  const boardRefs = useRef([])
+  const boardContainerRef = useRef(null)
+
+  function onBoardDrag(event){
+    // Check if the board is inside the droppable area
+    const boardContainerRect = boardContainerRef.current.getBoundingClientRect()
+    console.log(boardContainerRect)
+      // Loop through all the boards
+        // Exclude the currently dragging board
+        // Get the bounding box of that current board
+        // Get the center y of that current board
+        // If the dragging board is above the center of the current board then move it above and return
+        // If the dragging board is below the center of the current board then move it below and return
+  }
 
   function addNewBoard(){
     const newUUID = getNewUUID(boards)
     const newBoard = (
-      <Container containerType="board" key={newUUID} itemKey={newUUID}>
+      <Container ref={(ref) => boardRefs.current.push(ref)} containerType="board" key={newUUID} onDrag={onBoardDrag}>
         <Item includePlus={false} setItems={setBoards} itemKey={newUUID}/>
       </Container>
     )
     setBoards([...boards, newBoard])
+    console.log(boardRefs.current)
   }
 
   return (
@@ -48,7 +54,7 @@ export default function Navbar(){
           <NavIcon Icon={Upload} rightOffset={"right-[calc(3*var(--cardSpacing)+2*var(--iconSize))]"} />
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} />
           {/* Boards */}
-          <div ref={drop} className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
+          <div ref={boardContainerRef} className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
             {boards.map(board => board)}
             <Container containerType="card" onClick={addNewBoard}><AddElement text="Add another board"/></Container>
           </div>
