@@ -8,9 +8,11 @@ import { useGlobalContext } from "../../utils/context.js"
 import NavIcon from "./NavIcon.js"
 import Container from "../Container/Container.js"
 import AddElement from "../Container/AddElement.js"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Item from "../Container/Item.js"
 import getNewUUID from "../../utils/getNewUUID.js"
+import { isMouseInside, isMouseAboveOrBelowCenter } from "../../utils/rectangleFunctions.js"
+import React from "react"
 
 export default function Navbar(){
   const {globalState, setGlobalState} = useGlobalContext()
@@ -21,24 +23,32 @@ export default function Navbar(){
   function onBoardDrag(event){
     // Check if the board is inside the droppable area
     const boardContainerRect = boardContainerRef.current.getBoundingClientRect()
-    console.log(boardContainerRect)
+    if(!isMouseInside(boardContainerRect, event.clientX, event.clientY)) return
       // Loop through all the boards
+      for(let i = 0; i < boardRefs.current.length; i++){
+        const boardRef = boardRefs.current[i]
+        if(!boardRef) continue
+        const boardRefRect = boardRef.getBoundingClientRect()
         // Exclude the currently dragging board
-        // Get the bounding box of that current board
-        // Get the center y of that current board
+        if(boardRef === event.target) continue
+        const aboveOrBelow = isMouseAboveOrBelowCenter(boardRefRect, event.clientY)
+        if(aboveOrBelow === "above"){
+          // 
+          // Move dragging board above this board
+        }
         // If the dragging board is above the center of the current board then move it above and return
         // If the dragging board is below the center of the current board then move it below and return
+      }
   }
 
   function addNewBoard(){
     const newUUID = getNewUUID(boards)
     const newBoard = (
-      <Container ref={(ref) => boardRefs.current.push(ref)} containerType="board" key={newUUID} onDrag={onBoardDrag}>
-        <Item includePlus={false} setItems={setBoards} itemKey={newUUID}/>
+      <Container ref={(ref) => boardRefs.current.push(ref)} containerKey={newUUID} containerType="board" key={newUUID} onDrag={onBoardDrag}>
+        <Item includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={newUUID}/>
       </Container>
     )
     setBoards([...boards, newBoard])
-    console.log(boardRefs.current)
   }
 
   return (

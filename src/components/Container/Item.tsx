@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react"
 import Container from "./Container"
 import getNewUUID from "../../utils/getNewUUID"
 
-export default function Item({includePlus, setItems, itemKey}){
+export default function Item({includePlus, setItems, itemRefs, itemKey}){
   const [itemValue, setItemValue] = useState("")
   const [cards, setCards] = useState([])
   const [deleted, setDeleted] = useState(false)
@@ -48,6 +48,13 @@ export default function Item({includePlus, setItems, itemKey}){
       setItems(items => {
         return items.filter((item) => parseInt(item.key) !== itemKey)
       })
+      const newItemRefs = []
+      itemRefs.current.map((itemRef) => {
+        if(itemRef !== null && itemRef !== undefined && parseInt(itemRef.dataset.key) !== itemKey){
+          newItemRefs.push(itemRef)
+        }
+      })
+      itemRefs.current = [...newItemRefs]
     }
   }
 
