@@ -20,10 +20,69 @@ export default function Navbar(){
   const boardRefs = useRef([])
   const boardContainerRef = useRef(null)
 
+  function getBoardsBoundingBox(board){
+    for(let i = 0; i < boardRefs.current.length; i++){
+      const boardRef = boardRefs.current[i]
+      if(!boardRef) continue
+      if(boardRef.dataset.key == board.key){
+        return boardRef.getBoundingClientRect()
+      }
+    }
+  }
+
   function onBoardDrag(event){
     // Check if the board is inside the droppable area
     const boardContainerRect = boardContainerRef.current.getBoundingClientRect()
     if(!isMouseInside(boardContainerRect, event.clientX, event.clientY)) return
+      setBoards((boards) => {
+        for(let i = 0; i < boards.length; i++){
+          const board = boards[i]
+          const boardRect = getBoardsBoundingBox(board)
+          // Exclude the currently dragging board
+          if(event.target.dataset.key == board.key) continue
+          const aboveOrBelow = isMouseAboveOrBelowCenter(boardRect, event.clientY)
+          if(aboveOrBelow === "above"){
+            let newBoards = []
+            // Remove dragged board from boards state
+            let draggedBoard
+            boards.forEach((board) => {
+              if(board.key == event.target.dataset.key){
+                draggedBoard = board
+              }else{
+                newBoards.push(board)
+              }
+            })
+            // Find the boardRef in boards
+            let draggedBoardIndex
+            newBoards.forEach((newBoard, index) => {
+              if(newBoard.key == board.key){
+                draggedBoardIndex = index
+              }
+            })
+            // Put the removed draggable board above that
+            newBoards.splice(draggedBoardIndex, 0, draggedBoard)
+            return newBoards
+          }else{
+            if(i === boards.length - 1){
+              let newBoards = []
+              // Remove dragged board from boards state
+              let draggedBoard
+              boards.forEach((board) => {
+                if(board.key == event.target.dataset.key){
+                  draggedBoard = board
+                }else{
+                  newBoards.push(board)
+                }
+              })
+              newBoards.push(draggedBoard)
+              return newBoards
+            }
+          }
+        }
+        return boards
+      })
+
+      /*
       // Loop through all the boards
       for(let i = 0; i < boardRefs.current.length; i++){
         const boardRef = boardRefs.current[i]
@@ -33,16 +92,59 @@ export default function Navbar(){
         if(boardRef === event.target) continue
         const aboveOrBelow = isMouseAboveOrBelowCenter(boardRefRect, event.clientY)
         if(aboveOrBelow === "above"){
-          // 
-          // Move dragging board above this board
+          setBoards((boards) => {
+            let newBoards = []
+            // Remove dragged board from boards state
+            let draggedBoard
+            boards.forEach((board) => {
+              if(board.key == event.target.dataset.key){
+                draggedBoard = board
+              }else{
+                newBoards.push(board)
+              }
+            })
+            // Find the boardRef in boards
+            let draggedBoardIndex
+            newBoards.forEach((board, index) => {
+              if(board.key == boardRef.dataset.key){
+                // Put the removed draggable board above that
+                draggedBoardIndex = index
+              }
+            })
+            newBoards.splice(draggedBoardIndex, 0, draggedBoard)
+            return newBoards
+          })
+          break
+        }else{
+          // if last board add to the last
+          if(i === (boardRefs.current.length - 2)){
+            console.log("below")
+            //debugger
+            setBoards((boards) => {
+              let newBoards = []
+              // Remove dragged board from boards state
+              let draggedBoard
+              boards.forEach((board) => {
+                if(board.key == event.target.dataset.key){
+                  draggedBoard = board
+                }else{
+                  newBoards.push(board)
+                }
+              })
+              newBoards.push(draggedBoard)
+              return newBoards
+            })
+          }
         }
         // If the dragging board is above the center of the current board then move it above and return
         // If the dragging board is below the center of the current board then move it below and return
       }
+      */
   }
 
   function addNewBoard(){
     const newUUID = getNewUUID(boards)
+    let newBoardsRef
     const newBoard = (
       <Container ref={(ref) => boardRefs.current.push(ref)} containerKey={newUUID} containerType="board" key={newUUID} onDrag={onBoardDrag}>
         <Item includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={newUUID}/>
