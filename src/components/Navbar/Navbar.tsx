@@ -12,13 +12,15 @@ import { useState, useRef, useEffect } from "react"
 import Item from "../Container/Item.js"
 import getNewUUID from "../../utils/getNewUUID.js"
 import { isMouseInside, isMouseAboveOrBelowCenter } from "../../utils/rectangleFunctions.js"
-import React from "react"
+import { useLiveQuery } from "dexie-react-hooks"
 
 export default function Navbar(){
-  const {globalState, setGlobalState} = useGlobalContext()
-  const [boards, setBoards] = useState([])
+  const {db, globalState, setGlobalState} = useGlobalContext()
+  //const [boardss, setBoards] = useState([])
+  const boards = useLiveQuery(() => db.boards.toArray(), [])
   const boardRefs = useRef([])
   const boardContainerRef = useRef(null)
+
 
   function getBoardsBoundingBox(board){
     for(let i = 0; i < boardRefs.current.length; i++){
@@ -82,75 +84,13 @@ export default function Navbar(){
         return boards
       })
 
-      /*
-      // Loop through all the boards
-      for(let i = 0; i < boardRefs.current.length; i++){
-        const boardRef = boardRefs.current[i]
-        if(!boardRef) continue
-        const boardRefRect = boardRef.getBoundingClientRect()
-        // Exclude the currently dragging board
-        if(boardRef === event.target) continue
-        const aboveOrBelow = isMouseAboveOrBelowCenter(boardRefRect, event.clientY)
-        if(aboveOrBelow === "above"){
-          setBoards((boards) => {
-            let newBoards = []
-            // Remove dragged board from boards state
-            let draggedBoard
-            boards.forEach((board) => {
-              if(board.key == event.target.dataset.key){
-                draggedBoard = board
-              }else{
-                newBoards.push(board)
-              }
-            })
-            // Find the boardRef in boards
-            let draggedBoardIndex
-            newBoards.forEach((board, index) => {
-              if(board.key == boardRef.dataset.key){
-                // Put the removed draggable board above that
-                draggedBoardIndex = index
-              }
-            })
-            newBoards.splice(draggedBoardIndex, 0, draggedBoard)
-            return newBoards
-          })
-          break
-        }else{
-          // if last board add to the last
-          if(i === (boardRefs.current.length - 2)){
-            console.log("below")
-            //debugger
-            setBoards((boards) => {
-              let newBoards = []
-              // Remove dragged board from boards state
-              let draggedBoard
-              boards.forEach((board) => {
-                if(board.key == event.target.dataset.key){
-                  draggedBoard = board
-                }else{
-                  newBoards.push(board)
-                }
-              })
-              newBoards.push(draggedBoard)
-              return newBoards
-            })
-          }
-        }
-        // If the dragging board is above the center of the current board then move it above and return
-        // If the dragging board is below the center of the current board then move it below and return
-      }
-      */
   }
 
-  function addNewBoard(){
-    const newUUID = getNewUUID(boards)
-    let newBoardsRef
-    const newBoard = (
-      <Container ref={(ref) => boardRefs.current.push(ref)} containerKey={newUUID} containerType="board" key={newUUID} onDrag={onBoardDrag}>
-        <Item includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={newUUID}/>
-      </Container>
-    )
-    setBoards([...boards, newBoard])
+  async function addNewBoard(){
+    const id = getNewUUID(boards)
+    const name = ""
+    const lists = []
+    await db.boards.add({id, name, lists})
   }
 
   return (
@@ -167,7 +107,11 @@ export default function Navbar(){
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} />
           {/* Boards */}
           <div ref={boardContainerRef} className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
-            {boards.map(board => board)}
+            {boards.map(board => (
+              <Container ref={(ref) => boardRefs.current.push(ref)} containerKey={board.id} containerType="board" key={board.id} onDrag={onBoardDrag}>
+                <Item includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={board.id}/>
+              </Container>
+            ))}
             <Container containerType="card" onClick={addNewBoard}><AddElement text="Add another board"/></Container>
           </div>
         </>
