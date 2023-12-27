@@ -4,11 +4,30 @@ import { twMerge as tm } from "tailwind-merge"
 import { useState, useRef, useEffect } from "react"
 import Container from "./Container"
 import getNewUUID from "../../utils/getNewUUID"
+import { useLiveQuery } from "dexie-react-hooks"
+import { useGlobalContext } from "../utils/context.js"
+import { getCardsFromList, getCardsFromCard } from "../../utils/database.js"
 
-export default function Item({includePlus, setItems, itemRefs, itemKey}){
-  const [itemValue, setItemValue] = useState("")
-  const [cards, setCards] = useState([])
+type ItemProps = {
+  id: number
+  name: string
+  includePlus: boolean
+  itemType: "list" | "card"
+}
+
+export default function Item({id, name, includePlus, itemType}: ItemProps){
+  const {db, globalState} = useGlobalContext()
+  const cards = useLiveQuery(async () => {
+    if(itemType === "list"){
+      return await getCardsFromList(id)
+    }else if(itemType === "card"){
+      return await getCardsFromCard(id)
+    }
+  }, [])
+
+  const [itemValue, setItemValue] = useState(name)
   const [deleted, setDeleted] = useState(false)
+
   const trashParentRef = useRef(null)
 
   useEffect(() => {
@@ -35,10 +54,18 @@ export default function Item({includePlus, setItems, itemRefs, itemKey}){
     }
   }
 
-  function addNewCard() {
-    const newUUID = getNewUUID(cards)
-    const newCard = <Container containerType="card" key={newUUID} className="flex-shrink-0 col-span-2"><Item includePlus setItems={setCards} itemKey={newUUID}/></Container>
-    setCards([...cards, newCard])
+  async function addNewCard() {
+    const card = await db.cards.add({name: "", cards: []})
+    const cardIds = cards.map((card) => {return card.id})
+    if(itemType === "list"){
+      await db.lists.update(id, {
+        cards: [...cardIds, card.id]
+      })
+    }else if(itemType === "card"){
+      await db.cards.update(id, {
+        cards: [...cardIds, card.id]
+      })
+    }
   }
 
   function deleteSelf(event){

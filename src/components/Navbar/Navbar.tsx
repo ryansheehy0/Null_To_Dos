@@ -16,11 +16,12 @@ import { useLiveQuery } from "dexie-react-hooks"
 
 export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
-  //const [boardss, setBoards] = useState([])
-  const boards = useLiveQuery(() => db.boards.toArray(), [])
+  //const [boards, setBoards] = useState([])
+  const boards = useLiveQuery(async () => {
+    return await db.boards.toArray()
+  }, [])
   const boardRefs = useRef([])
   const boardContainerRef = useRef(null)
-
 
   function getBoardsBoundingBox(board){
     for(let i = 0; i < boardRefs.current.length; i++){
@@ -107,9 +108,15 @@ export default function Navbar(){
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} />
           {/* Boards */}
           <div ref={boardContainerRef} className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
-            {boards.map(board => (
-              <Container ref={(ref) => boardRefs.current.push(ref)} containerKey={board.id} containerType="board" key={board.id} onDrag={onBoardDrag}>
-                <Item includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={board.id}/>
+            {boards.map((board) => (
+              //({id, containerType, children, className, ...props} : ContainerProps, ref)
+              <Container
+                key={board.id} id={board.id}
+                containerType="board"
+                ref={(ref) => boardRefs.current.push(ref)}
+                onDrag={onBoardDrag}>
+                <Item
+                  includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={board.id}/>
               </Container>
             ))}
             <Container containerType="card" onClick={addNewBoard}><AddElement text="Add another board"/></Container>
