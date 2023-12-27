@@ -13,9 +13,10 @@ type ItemProps = {
   name: string
   includePlus: boolean
   itemType: "list" | "card"
+  deleteItem: (event) => void
 }
 
-export default function Item({id, name, includePlus, itemType}: ItemProps){
+export default function Item({id, name, includePlus, itemType, deleteItem}: ItemProps){
   const {db, globalState} = useGlobalContext()
   const cards = useLiveQuery(async () => {
     if(itemType === "list"){
@@ -40,7 +41,6 @@ export default function Item({id, name, includePlus, itemType}: ItemProps){
     return(() => {
       document.removeEventListener("click", handleClickOutside)
     })
-
   }, [])
 
   function autoTextAreaResizing(event){
@@ -72,16 +72,7 @@ export default function Item({id, name, includePlus, itemType}: ItemProps){
     if(!deleted){
       setDeleted(true)
     }else{
-      setItems(items => {
-        return items.filter((item) => parseInt(item.key) !== itemKey)
-      })
-      const newItemRefs = []
-      itemRefs.current.map((itemRef) => {
-        if(itemRef !== null && itemRef !== undefined && parseInt(itemRef.dataset.key) !== itemKey){
-          newItemRefs.push(itemRef)
-        }
-      })
-      itemRefs.current = [...newItemRefs]
+      deleteItem(event)
     }
   }
 
@@ -92,7 +83,22 @@ export default function Item({id, name, includePlus, itemType}: ItemProps){
         {includePlus ? <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} /> : ""}
         <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />
       </div>
-      {cards.map(card => card)}
+      {cards.map((card) => (
+        <Container
+          key={card.id} id={card.id}
+          containerType="card"
+          className="flex-shrink-0 col-span-2">
+          <Item
+            id={card.id}
+            name={card.name}
+            includePlus
+            itemType="card"
+
+            setItems={setCards}
+//{id, name, includePlus, itemType, deleteItem
+          />
+        </Container>
+      ))}
     </div>
   )
 }
