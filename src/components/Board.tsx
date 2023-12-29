@@ -13,10 +13,14 @@ type BoardProps = {
 export default function Board({boardId}: BoardProps){
   const {db, globalState} = useGlobalContext()
   const lists = useLiveQuery(async () => {
-    return await getLists(db, boardId)
+    return await db.boards.get(boardId).lists
   })
 
   async function addNewList(){
+    const board = db.boards.get(boardId)
+    await db.boards.update(boardId, {
+      lists: [...board.lists, {}]
+    })
     // Create new list
     const newListId = await db.lists.add({
       name: "",

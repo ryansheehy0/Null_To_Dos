@@ -1,26 +1,13 @@
-/*
-export default function getNewUUID(array: (JSX.Element & { key: React.Key})[]){
-  const arrayKeys = array.map(element => {return parseInt(element.key)})
-  let newUUID: number
-  if(arrayKeys.length === 0){
-    newUUID = 0
-  }else{
-    newUUID = Math.max(...arrayKeys) + 1
+export default async function getNewUUID(board, itemType: "card" | "list" | "board"){
+  if(itemType === "card"){
+    let maxCardId = 0
+    board.lists.forEach((list) => {
+      if(list.cards.length > 0){
+
+      }else{
+        
+      }
+    })
   }
-
-  return newUUID
 }
-*/
 
-export default function getNewUUID(array){
-
-  const arrayKeys = array.map(element => {return parseInt(element.key)})
-  let newUUID: number
-  if(arrayKeys.length === 0){
-    newUUID = 0
-  }else{
-    newUUID = Math.max(...arrayKeys) + 1
-  }
-
-  return newUUID
-}

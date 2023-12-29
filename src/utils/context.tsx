@@ -8,9 +8,7 @@ export default function Provider({children}){
   // Set up db
   let db = new Dexie("Null_Todos")
   db.version(1).stores({
-    boards: "++id,name,lists",
-    lists: "++id,name,cards",
-    cards: "++id,name,cards"
+    boards: "++id,name,lists"
   })
 
   async function addBoardIfNone(){

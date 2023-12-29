@@ -23,3 +23,8 @@ export async function getCardsFromCard(db, cardId){
   const cards = await populate(db, cardId, "cards", "cards")
   return cards
 }
+
+export async function getLists(db, boardId){
+  const board = await db.boards.get(boardId)
+  return board.lists
+}
