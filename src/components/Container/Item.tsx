@@ -6,22 +6,23 @@ import Container from "./Container"
 import { useLiveQuery } from "dexie-react-hooks"
 import { useGlobalContext } from "../../utils/context.js"
 import { getCardsFromList, getCardsFromCard } from "../../utils/database.js"
+import { getNewCardUUID, getNewListUUID } from "../../utils/getNewUUID.js"
 
 type ItemProps = {
   id: number
   name: string
   includePlus: boolean
   itemType: "list" | "card" | "board"
+  boardId: number
 }
-// parentId: number
 
-export default function Item({id, name, includePlus, itemType}: ItemProps){
+export default function Item({id, name, includePlus, itemType, boardId}: ItemProps){
   const {db} = useGlobalContext()
-  const cards = useLiveQuery(() => {
+  const cards = useLiveQuery(async () => {
     if(itemType === "list"){
-      return getCardsFromList(db, id)
+      return await getCardsFromList(db, id, boardId)
     }else if(itemType === "card"){
-      return getCardsFromCard(db, id)
+      return await getCardsFromCard(db, id, boardId)
     }
   })
   const [itemValue, setItemValue] = useState(name)
@@ -53,20 +54,23 @@ export default function Item({id, name, includePlus, itemType}: ItemProps){
   }
 
   async function addNewCard() {
-    // Create new card
-    const newCardId = await db.cards.add({
-      name: "", cards: []
-    })
-    // Add new card to parent's child references
     if(itemType === "list"){
-      const list = await db.lists.get(id)
-      await db.lists.update(id, {
-        cards: [...list.cards, newCardId]
+      const newId = await getNewListUUID(db, boardId)
+      await db.boards.update(boardId, {
+        lists: [...cards, {
+          id: newId,
+          name: "",
+          cards: []
+        }]
       })
     }else if(itemType === "card"){
-      const card = await db.cards.get(id)
-      await db.cards.update(id, {
-        cards: [...card.cards, newCardId]
+      const newId = await getNewCardUUID(db, boardId)
+      await db.boards.update(boardId, {
+        lists: [...cards, {
+          id: newId,
+          name: "",
+          cards: []
+        }]
       })
     }
   }

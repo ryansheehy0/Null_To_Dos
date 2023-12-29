@@ -11,6 +11,7 @@ export default function Provider({children}){
     boards: "++id,name,lists"
   })
 
+  // Have provider wait for new board to be added to prevent errors
   async function addBoardIfNone(){
     const boards = await db.boards.toArray()
     if(boards.length === 0){

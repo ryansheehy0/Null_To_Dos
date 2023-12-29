@@ -5,6 +5,7 @@ import AddElement from "./Container/AddElement.js"
 import Item from "./Container/Item.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
+import { getNewListUUID } from "../utils/getNewUUID.js"
 
 type BoardProps = {
   boardId: number
@@ -13,23 +14,18 @@ type BoardProps = {
 export default function Board({boardId}: BoardProps){
   const {db, globalState} = useGlobalContext()
   const lists = useLiveQuery(async () => {
-    return await db.boards.get(boardId).lists
+    const board = await db.boards.get(boardId)
+    return board.lists
   })
 
   async function addNewList(){
-    const board = db.boards.get(boardId)
-    await db.boards.update(boardId, {
-      lists: [...board.lists, {}]
-    })
-    // Create new list
-    const newListId = await db.lists.add({
-      name: "",
-      cards: []
-    })
-    // Add new list to board's lists
-    const board = await db.boards.get(boardId)
-    await db.boards.update(boardId, {
-      lists: [...board.lists, newListId]
+    const newId = await getNewListUUID(db, boardId)
+    await db.update(boardId, {
+      lists: [...lists, {
+        id: newId,
+        name: "",
+        cards: []
+      }]
     })
   }
 
