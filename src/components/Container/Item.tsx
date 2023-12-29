@@ -5,18 +5,18 @@ import { useState, useRef, useEffect } from "react"
 import Container from "./Container"
 import { useLiveQuery } from "dexie-react-hooks"
 import { useGlobalContext } from "../../utils/context.js"
-import { getCardsFromList, getCardsFromCard } from "../../utils/database.js"
-import { getNewCardUUID, getNewListUUID } from "../../utils/getNewUUID.js"
+import { getCardsFromList, getCardsFromCard, recursivelyDeleteItem } from "../../utils/database.js"
 
 type ItemProps = {
   id: number
   name: string
   includePlus: boolean
   itemType: "list" | "card" | "board"
-  boardId: number
+  parentId?: number
+  parentType?: "list" | "card"
 }
 
-export default function Item({id, name, includePlus, itemType, boardId}: ItemProps){
+export default function Item({id, name, includePlus, itemType, parentId, parentType}: ItemProps){
   const {db} = useGlobalContext()
   const cards = useLiveQuery(async () => {
     if(itemType === "list"){
@@ -75,17 +75,13 @@ export default function Item({id, name, includePlus, itemType, boardId}: ItemPro
     }
   }
 
-  function deleteSelf(){}
-  /*
-  async function deleteSelf(event){
+  async function deleteSelf(){
     if(!deleted){
       setDeleted(true)
     }else{
-       // Remove self from cards or lists
-       // Remove references to self from boards or lists
+      await recursivelyDeleteItem(db, itemType, id, parentId)
     }
   }
-  */
 
   return (
     <div className="grid grid-cols-[auto_auto]">
@@ -105,6 +101,7 @@ export default function Item({id, name, includePlus, itemType, boardId}: ItemPro
             name={card.name}
             includePlus
             itemType="card"
+            parentId={id}
           />
         </Container>
       )): ""}

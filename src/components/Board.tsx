@@ -44,6 +44,7 @@ export default function Board({boardId}: BoardProps){
             name={list.name}
             includePlus
             itemType="list"
+            parentId={boardId}
           />
         </Container>
       )): ""}
