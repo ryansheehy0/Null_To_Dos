@@ -7,7 +7,7 @@ function App() {
     <Provider>
       <div className="bg-lightBackground dark:bg-darkBackground w-screen h-screen">
         <Navbar/>
-        <Board boardId={0}/>
+        <Board boardId={1}/>
       </div>
     </Provider>
   )

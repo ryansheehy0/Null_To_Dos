@@ -3,34 +3,32 @@ import Plus from "../../assets/plus.svg?react"
 import { twMerge as tm } from "tailwind-merge"
 import { useState, useRef, useEffect } from "react"
 import Container from "./Container"
-import getNewUUID from "../../utils/getNewUUID"
 import { useLiveQuery } from "dexie-react-hooks"
-import { useGlobalContext } from "../utils/context.js"
+import { useGlobalContext } from "../../utils/context.js"
 import { getCardsFromList, getCardsFromCard } from "../../utils/database.js"
 
 type ItemProps = {
   id: number
   name: string
   includePlus: boolean
-  itemType: "list" | "card"
-  deleteItem: (event) => void
+  itemType: "list" | "card" | "board"
 }
+// parentId: number
 
-export default function Item({id, name, includePlus, itemType, deleteItem}: ItemProps){
-  const {db, globalState} = useGlobalContext()
-  const cards = useLiveQuery(async () => {
+export default function Item({id, name, includePlus, itemType}: ItemProps){
+  const {db} = useGlobalContext()
+  const cards = useLiveQuery(() => {
     if(itemType === "list"){
-      return await getCardsFromList(id)
+      return getCardsFromList(db, id)
     }else if(itemType === "card"){
-      return await getCardsFromCard(id)
+      return getCardsFromCard(db, id)
     }
-  }, [])
-
+  })
   const [itemValue, setItemValue] = useState(name)
   const [deleted, setDeleted] = useState(false)
-
   const trashParentRef = useRef(null)
 
+  // Remove deleted on click outside
   useEffect(() => {
     function handleClickOutside(event){
       if(!trashParentRef.current.lastChild.contains(event.target)){
@@ -55,26 +53,35 @@ export default function Item({id, name, includePlus, itemType, deleteItem}: Item
   }
 
   async function addNewCard() {
-    const card = await db.cards.add({name: "", cards: []})
-    const cardIds = cards.map((card) => {return card.id})
+    // Create new card
+    const newCardId = await db.cards.add({
+      name: "", cards: []
+    })
+    // Add new card to parent's child references
     if(itemType === "list"){
+      const list = await db.lists.get(id)
       await db.lists.update(id, {
-        cards: [...cardIds, card.id]
+        cards: [...list.cards, newCardId]
       })
     }else if(itemType === "card"){
+      const card = await db.cards.get(id)
       await db.cards.update(id, {
-        cards: [...cardIds, card.id]
+        cards: [...card.cards, newCardId]
       })
     }
   }
 
-  function deleteSelf(event){
+  function deleteSelf(){}
+  /*
+  async function deleteSelf(event){
     if(!deleted){
       setDeleted(true)
     }else{
-      deleteItem(event)
+       // Remove self from cards or lists
+       // Remove references to self from boards or lists
     }
   }
+  */
 
   return (
     <div className="grid grid-cols-[auto_auto]">
@@ -83,7 +90,8 @@ export default function Item({id, name, includePlus, itemType, deleteItem}: Item
         {includePlus ? <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} /> : ""}
         <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />
       </div>
-      {cards.map((card) => (
+      {/* List all the cards */}
+      {cards ? cards.map((card) => (
         <Container
           key={card.id} id={card.id}
           containerType="card"
@@ -93,12 +101,9 @@ export default function Item({id, name, includePlus, itemType, deleteItem}: Item
             name={card.name}
             includePlus
             itemType="card"
-
-            setItems={setCards}
-//{id, name, includePlus, itemType, deleteItem
           />
         </Container>
-      ))}
+      )): ""}
     </div>
   )
 }

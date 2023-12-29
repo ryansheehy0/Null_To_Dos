@@ -1,3 +1,4 @@
+/*
 export default function getNewUUID(array: (JSX.Element & { key: React.Key})[]){
   const arrayKeys = array.map(element => {return parseInt(element.key)})
   let newUUID: number
@@ -9,6 +10,7 @@ export default function getNewUUID(array: (JSX.Element & { key: React.Key})[]){
 
   return newUUID
 }
+*/
 
 export default function getNewUUID(array){
 

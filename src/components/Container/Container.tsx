@@ -21,7 +21,9 @@ const Container = React.forwardRef(({id, containerType, children, className, ...
         containerType === "list" && "bg-lightList dark:bg-darkList",
         children.type === AddElement && "cursor-pointer",
         className
-      )} {...props} draggable={children.type === Item ? "true" : "false"}>
+      )}
+      draggable={children.type === Item ? "true" : "false"}
+      {...props}>
       {children}
     </div>
   )

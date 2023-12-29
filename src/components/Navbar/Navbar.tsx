@@ -8,21 +8,20 @@ import { useGlobalContext } from "../../utils/context.js"
 import NavIcon from "./NavIcon.js"
 import Container from "../Container/Container.js"
 import AddElement from "../Container/AddElement.js"
-import { useState, useRef, useEffect } from "react"
+import { useRef } from "react"
 import Item from "../Container/Item.js"
-import getNewUUID from "../../utils/getNewUUID.js"
 import { isMouseInside, isMouseAboveOrBelowCenter } from "../../utils/rectangleFunctions.js"
 import { useLiveQuery } from "dexie-react-hooks"
 
 export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
-  //const [boards, setBoards] = useState([])
-  const boards = useLiveQuery(async () => {
-    return await db.boards.toArray()
-  }, [])
+  const boards = useLiveQuery(() => {
+    return db.boards.toArray()
+  })
   const boardRefs = useRef([])
   const boardContainerRef = useRef(null)
 
+  /*
   function getBoardsBoundingBox(board){
     for(let i = 0; i < boardRefs.current.length; i++){
       const boardRef = boardRefs.current[i]
@@ -86,16 +85,20 @@ export default function Navbar(){
       })
 
   }
+  */
+  function onBoardDrag(){}
 
   async function addNewBoard(){
-    const id = getNewUUID(boards)
-    const name = ""
-    const lists = []
-    await db.boards.add({id, name, lists})
+    await db.boards.add({
+      name: "",
+      lists: []
+    })
   }
 
   return (
-    <div className={tm("w-[--cardHeight] h-screen absolute left-0 top-0 bg-lightList dark:bg-darkList z-10", globalState.open && "w-fit pr-[--cardSpacing]")}>
+    <div
+      className={tm("w-[--cardHeight] h-screen absolute left-0 top-0 bg-lightList dark:bg-darkList z-10",
+      globalState.open && "w-fit pr-[--cardSpacing]")}>
       <NavIcon Icon={List} rightOffset={"right-[--cardSpacing]"} onClick={() => setGlobalState({...globalState, open: !globalState.open})} />
       {globalState.open ? (
         <>
@@ -106,20 +109,27 @@ export default function Navbar(){
           )}
           <NavIcon Icon={Upload} rightOffset={"right-[calc(3*var(--cardSpacing)+2*var(--iconSize))]"} />
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} />
-          {/* Boards */}
           <div ref={boardContainerRef} className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
-            {boards.map((board) => (
-              //({id, containerType, children, className, ...props} : ContainerProps, ref)
+            {/* Display all the boards */}
+            {boards ? boards.map((board) => (
               <Container
                 key={board.id} id={board.id}
                 containerType="board"
                 ref={(ref) => boardRefs.current.push(ref)}
                 onDrag={onBoardDrag}>
                 <Item
-                  includePlus={false} setItems={setBoards} itemRefs={boardRefs} itemKey={board.id}/>
+                  id={board.id}
+                  name={board.name}
+                  includePlus={false}
+                  itemType="board"/>
               </Container>
-            ))}
-            <Container containerType="card" onClick={addNewBoard}><AddElement text="Add another board"/></Container>
+            )): ""}
+            {/* Add new board button */}
+            <Container
+              containerType="board"
+              onClick={addNewBoard}>
+              <AddElement text="Add another board"/>
+            </Container>
           </div>
         </>
       ): "" }
