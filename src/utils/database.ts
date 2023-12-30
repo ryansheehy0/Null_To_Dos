@@ -1,9 +1,7 @@
 // Getting
 async function populate(db, parentId, parentName, childName){
   const parent = await db[parentName].get(parentId)
-  console.log(parent)
-  console.log(parentName)//Why cards
-  console.log(parentId)
+  if(!parent) return []
   const children = await Promise.all(
     parent[childName].map(async (childId) => {
       const child = await db[childName].get(childId)

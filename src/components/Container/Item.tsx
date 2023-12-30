@@ -42,7 +42,7 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     })
   }, [])
 
-  function autoTextAreaResizing(event){
+  async function autoTextAreaResizing(event){
     const textarea = event.target
     textarea.style.height = "fit-content"
     textarea.style.height = textarea.scrollHeight + "px"
@@ -50,6 +50,19 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
       setItemValue(textarea.value.substr(0, 64))
     }else{
       setItemValue(textarea.value)
+    }
+    if(itemType === "board"){
+      await db.boards.update(id, {
+        name: textarea.value
+      })
+    }else if(itemType === "list"){
+      await db.lists.update(id, {
+        name: textarea.value
+      })
+    }else if(itemType === "card"){
+      await db.cards.update(id, {
+        name: textarea.value
+      })
     }
   }
 
