@@ -17,7 +17,7 @@ type ItemProps = {
 }
 
 export default function Item({id, name, includePlus, itemType, parentId, parentType}: ItemProps){
-  const {db} = useGlobalContext()
+  const {db, globalState} = useGlobalContext()
   const cards = useLiveQuery(() => {
     if(itemType === "list"){
       return getCardsFromList(db, id)
@@ -51,6 +51,7 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     }else{
       setItemValue(textarea.value)
     }
+    // Save the changes
     if(itemType === "board"){
       await db.boards.update(id, {
         name: textarea.value
@@ -105,7 +106,7 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
       <textarea className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={itemValue} onInput={autoTextAreaResizing} rows={1} spellCheck={false}></textarea>
       <div ref={trashParentRef} className="flex items-center justify-end">
         {includePlus ? <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} /> : ""}
-        <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />
+        {(itemType !== "board" || id !== globalState.boardId) ? <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} /> : ""}
       </div>
       {/* List all the cards */}
       {cards ? cards.map((card) => (

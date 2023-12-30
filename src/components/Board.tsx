@@ -5,16 +5,13 @@ import AddElement from "./Container/AddElement.js"
 import Item from "./Container/Item.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
+import { useEffect } from "react"
 
-type BoardProps = {
-  boardId: number
-}
-
-export default function Board({boardId}: BoardProps){
+export default function Board(){
   const {db, globalState} = useGlobalContext()
   const lists = useLiveQuery(async () => {
-    return await getLists(db, boardId)
-  })
+    return await getLists(db, globalState.boardId)
+  }, [globalState.boardId])
 
   async function addNewList(){
     // Create new list
@@ -23,8 +20,8 @@ export default function Board({boardId}: BoardProps){
       cards: []
     })
     // Add new list to board's lists
-    const board = await db.boards.get(boardId)
-    await db.boards.update(boardId, {
+    const board = await db.boards.get(globalState.boardId)
+    await db.boards.update(globalState.boardId, {
       lists: [...board.lists, newListId]
     })
   }
@@ -44,7 +41,7 @@ export default function Board({boardId}: BoardProps){
             name={list.name}
             includePlus
             itemType="list"
-            parentId={boardId}
+            parentId={globalState.boardId}
           />
         </Container>
       )): ""}

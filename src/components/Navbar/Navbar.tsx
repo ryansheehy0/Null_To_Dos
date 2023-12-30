@@ -17,7 +17,7 @@ export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
   const boards = useLiveQuery(async () => {
     return await db.boards.toArray()
-  })
+  }, [globalState.boardId])
   const boardRefs = useRef([])
   const boardContainerRef = useRef(null)
 
@@ -95,6 +95,19 @@ export default function Navbar(){
     })
   }
 
+  function selectBoard(event){
+    let boardId
+    if(event.target.tagName === "TEXTAREA"){
+      boardId = event.target.parentNode.parentNode.dataset.id
+    }else{
+      boardId = event.target.dataset.id
+    }
+    if(boardId){
+      const boardIdInt = parseInt(boardId)
+      setGlobalState({...globalState, boardId: boardIdInt})
+    }
+  }
+
   return (
     <div
       className={tm("w-[--cardHeight] h-screen absolute left-0 top-0 bg-lightList dark:bg-darkList z-10",
@@ -116,7 +129,9 @@ export default function Navbar(){
                 key={board.id} id={board.id}
                 containerType="board"
                 ref={(ref) => boardRefs.current.push(ref)}
-                onDrag={onBoardDrag}>
+                onDrag={onBoardDrag}
+                onClick={selectBoard}
+                >
                 <Item
                   id={board.id}
                   name={board.name}

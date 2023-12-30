@@ -29,7 +29,7 @@ export default function Provider({children}){
   const [globalState, setGlobalState] = useState({
     theme: "dark",
     open: false,
-    boardId: 0
+    boardId: 1
   })
 
   return (
