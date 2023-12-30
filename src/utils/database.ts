@@ -1,30 +1,26 @@
-export async function getCardsFromList(db, listId, boardId){
-  const board = await db.boards.get(boardId)
-  for(const list of board.lists){
-    if(list.id === listId){
-      return list.cards
-    }
-  }
+// Getting
+async function populate(db, parentId, parentName, childName){
+  const parent = await db[parentName].get(parentId)
+  console.log(parent)
+  console.log(parentName)//Why cards
+  console.log(parentId)
+  const children = await Promise.all(
+    parent[childName].map(async (childId) => {
+      const child = await db[childName].get(childId)
+      return child
+    })
+  )
+  return children
 }
 
-
-function recursivelyGetCard(card, cardId){
-  if(card.id === cardId){
-    return card
-  }
-  for(const childCard of card.cards){
-    const possibleCard = recursivelyGetCard(childCard, cardId)
-    if(possibleCard) return possibleCard
-  }
-  return null
+export async function getLists(db, boardId){
+  const lists = await populate(db, boardId, "boards", "lists")
+  return lists
 }
 
-function recursivelyGetCardFromList(list, cardId){
-  for(const card of list.cards){
-    const possibleCard = recursivelyGetCard(card, cardId)
-    if(possibleCard) return possibleCard
-  }
-  return null
+export async function getCardsFromList(db, listId){
+  const cards = await populate(db, listId, "lists", "cards")
+  return cards
 }
 
 export async function getCardsFromCard(db, cardId){
@@ -32,77 +28,53 @@ export async function getCardsFromCard(db, cardId){
   return cards
 }
 
-async function deleteItem(db, itemType: "card" | "list" | "board", id, parentId?: number, parenType?: "list" | "card"){
-  if(itemType === "list"){
-    // Remove reference to self in boards
-    const board = await db.boards.get(parentId)
-    board.lists = board.lists.filter((list) => { return list !== id })
-    await db.boards.update(parentId, {
-      lists: [...board.lists]
-    })
-    // Remove self from lists
-    await db.lists.delete(id)
-  }else if(itemType === "card"){
-    // Remove reference to self in lists
+// Deleting
+export async function recursivelyDeleteCard(db, id, parentId, parentType: "list" | "card"){
+  // Delete all cards in card
+  const card = await db.cards.get(id)
+  for(const cardId of card.cards){
+    await recursivelyDeleteCard(db, cardId, id, "card")
+  }
+  // Remove reference to self in parentType
+  if(parentType === "list"){
     const list = await db.lists.get(parentId)
-    list.cards = list.cards.filter((card) => { return card !== id })
+    list.cards = list.cards.filter((cardId) => {return cardId !== id})
     await db.lists.update(parentId, {
       cards: [...list.cards]
     })
-    // Remove self from cards
-    await db.cards.delete(id)
-  }else if (itemType === "board"){
-    // remove self from boards
-    await db.boards.delete(id)
-  }
-}
-
-async function recursivelyDeleteCard(db, id, parentId, parentType: "list" | "card"){
-  // Get the card
-  const card = await db.cards.get(id)
-  // Check if there are any children
-  if(card.cards.length > 0){
-    card.cards.forEach(async (childCardId) => {
-      await recursivelyDeleteCard(db, childCardId, id, "card")
+  }else if(parentType === "card"){
+    const card = await db.cards.get(parentId)
+    card.cards = card.cards.filter((cardId) => {return cardId !== id})
+    await db.cards.update(parentId, {
+      cards: [...card.cards]
     })
-  }else{
-    await deleteItem(db, "card", id, parentId, parentType)
   }
+  // Delete self(card)
+  await db.cards.delete(id)
 }
 
-async function recursivelyDeleteList(db, id, parentId){
-  // Get the list
+export async function recursivelyDeleteList(db, id, parentId){
+  // Delete all cards in list
   const list = await db.lists.get(id)
-  // Check if there are any children
-  if(list.cards.length > 0){
-    list.cards.forEach(async (childCardId) => {
-      await recursivelyDeleteCard(db, childCardId, id, "list")
-    })
-  }else{
-    await deleteItem(db, "list", id, parentId)
+  for(const cardId of list.cards){
+    await recursivelyDeleteCard(db, cardId, id, "list")
   }
+  // Remove reference to self in boards
+  const board = await db.boards.get(parentId)
+  board.lists = board.lists.filter((listId) => {return listId !== id})
+  await db.boards.update(parentId, {
+    lists: [...board.lists]
+  })
+  // Delete self(list)
+  await db.lists.delete(id)
 }
 
-async function recursivelyDeleteBoard(db, id){
-  // Get the board
+export async function recursivelyDeleteBoard(db, id){
+  // Delete all lists in board
   const board = await db.boards.get(id)
-  // Check if there are any children
-  if(board.lists.length > 0){
-    board.lists.forEach(async (childListId) => {
-      await recursivelyDeleteList(db, childListId, id)
-    })
-  }else{
-    await deleteItem(db, "board", id)
+  for(const listId of board.lists){
+    await recursivelyDeleteList(db, listId, id)
   }
-}
-
-export async function recursivelyDeleteItem(db, itemType: "card" | "list" | "board", id, parentId?: number, parentType?: "list" | "card"){
-  debugger
-  if(itemType === "list"){
-    await recursivelyDeleteList(db, id, parentId)
-  }else if(itemType === "card"){
-    await recursivelyDeleteCard(db, id, parentId, parentType)
-  }else if (itemType === "board"){
-    await recursivelyDeleteBoard(db, id)
-  }
+  // Delete self(board)
+  await db.boards.delete(id)
 }

@@ -15,8 +15,8 @@ import { useLiveQuery } from "dexie-react-hooks"
 
 export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
-  const boards = useLiveQuery(() => {
-    return db.boards.toArray()
+  const boards = useLiveQuery(async () => {
+    return await db.boards.toArray()
   })
   const boardRefs = useRef([])
   const boardContainerRef = useRef(null)

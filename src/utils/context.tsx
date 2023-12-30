@@ -8,7 +8,9 @@ export default function Provider({children}){
   // Set up db
   let db = new Dexie("Null_Todos")
   db.version(1).stores({
-    boards: "++id,name,lists"
+    boards: "++id,name,lists",
+    lists: "++id,name,cards",
+    cards: "++id,name,cards"
   })
 
   // Have provider wait for new board to be added to prevent errors

@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react"
 import Container from "./Container"
 import { useLiveQuery } from "dexie-react-hooks"
 import { useGlobalContext } from "../../utils/context.js"
-import { getCardsFromList, getCardsFromCard, recursivelyDeleteItem } from "../../utils/database.js"
+import { getCardsFromList, getCardsFromCard, recursivelyDeleteCard, recursivelyDeleteList, recursivelyDeleteBoard } from "../../utils/database.js"
 
 type ItemProps = {
   id: number
@@ -18,11 +18,11 @@ type ItemProps = {
 
 export default function Item({id, name, includePlus, itemType, parentId, parentType}: ItemProps){
   const {db} = useGlobalContext()
-  const cards = useLiveQuery(async () => {
+  const cards = useLiveQuery(() => {
     if(itemType === "list"){
-      return await getCardsFromList(db, id, boardId)
+      return getCardsFromList(db, id)
     }else if(itemType === "card"){
-      return await getCardsFromCard(db, id, boardId)
+      return getCardsFromCard(db, id)
     }
   })
   const [itemValue, setItemValue] = useState(name)
@@ -54,23 +54,21 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
   }
 
   async function addNewCard() {
+    // Create new card
+    const newCardId = await db.cards.add({
+      name: "",
+      cards: []
+    })
+    // Add new card to parent's child references
     if(itemType === "list"){
-      const newId = await getNewListUUID(db, boardId)
-      await db.boards.update(boardId, {
-        lists: [...cards, {
-          id: newId,
-          name: "",
-          cards: []
-        }]
+      const list = await db.lists.get(id)
+      await db.lists.update(id, {
+        cards: [...list.cards, newCardId]
       })
     }else if(itemType === "card"){
-      const newId = await getNewCardUUID(db, boardId)
-      await db.boards.update(boardId, {
-        lists: [...cards, {
-          id: newId,
-          name: "",
-          cards: []
-        }]
+      const card = await db.cards.get(id)
+      await db.cards.update(id, {
+        cards: [...card.cards, newCardId]
       })
     }
   }
@@ -79,7 +77,13 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     if(!deleted){
       setDeleted(true)
     }else{
-      await recursivelyDeleteItem(db, itemType, id, parentId)
+      if(itemType === "list"){
+        await recursivelyDeleteList(db, id, parentId)
+      }else if(itemType === "card"){
+        await recursivelyDeleteCard(db, id, parentId, parentType)
+      }else if (itemType === "board"){
+        await recursivelyDeleteBoard(db, id)
+      }
     }
   }
 
@@ -102,6 +106,7 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
             includePlus
             itemType="card"
             parentId={id}
+            parentType={itemType}
           />
         </Container>
       )): ""}
