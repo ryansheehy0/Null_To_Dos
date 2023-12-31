@@ -1,10 +1,11 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import Dexie from "dexie"
 
 const Context = createContext()
 export const useGlobalContext = () => useContext(Context) // Returns the value attribute in the provider
 
 export default function Provider({children}){
+  const [loading, setLoading] = useState(true)
   // Set up db
   let db = new Dexie("Null_Todos")
   db.version(1).stores({
@@ -13,17 +14,19 @@ export default function Provider({children}){
     cards: "++id,name,cards"
   })
 
-  // Have provider wait for new board to be added to prevent errors
-  async function addBoardIfNone(){
-    const boards = await db.boards.toArray()
-    if(boards.length === 0){
-      await db.boards.add({
-        name: "",
-        lists: []
-      })
+  useEffect(() => {
+    async function addBoardIfNone(){
+      const boards = await db.boards.toArray()
+      if(boards.length === 0){
+        await db.boards.add({
+          name: "",
+          lists: []
+        })
+      }
+      setLoading(false)
     }
-  }
-  addBoardIfNone()
+    addBoardIfNone()
+  }, [])
 
   // Set up global state
   const [globalState, setGlobalState] = useState({
@@ -31,6 +34,8 @@ export default function Provider({children}){
     open: false,
     boardId: 1
   })
+
+  if(loading) return null
 
   return (
     <Context.Provider value={{db, globalState, setGlobalState}} >

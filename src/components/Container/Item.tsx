@@ -32,6 +32,7 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
   // Remove deleted on click outside
   useEffect(() => {
     function handleClickOutside(event){
+      if(!trashParentRef.current.lastChild) return
       if(!trashParentRef.current.lastChild.contains(event.target)){
         setDeleted(false)
       }

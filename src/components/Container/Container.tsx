@@ -22,7 +22,7 @@ const Container = React.forwardRef(({id, containerType, children, className, ...
         children.type === AddElement && "cursor-pointer",
         className
       )}
-      draggable={children.type === Item ? "true" : "false"}
+      draggable={children.type === Item && (containerType === "card" || containerType === "list") ? "true" : "false"}
       {...props}>
       {children}
     </div>
