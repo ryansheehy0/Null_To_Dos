@@ -3,6 +3,8 @@ type Rect = {
   y: number
   width: number
   height: number
+  left: number
+  right: number
 }
 
 export function isMouseInside(rect: Rect, x: number, y: number): boolean{
@@ -30,4 +32,11 @@ export function isMouseLeftOrRightCenter(rect: Rect, x: number): "left" | "right
   }else{
     return "right"
   }
+}
+
+export function isMouseLeftOrRightHalf(rect: Rect, x: number): "left" | "right" | "neither"{
+  const xCenter = (rect.left + rect.right) / 2
+  if(x > rect.left && x < xCenter) return "left"
+  if(x < rect.right && x > xCenter) return "right"
+  return "neither"
 }

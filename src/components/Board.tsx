@@ -6,7 +6,7 @@ import Item from "./Container/Item.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
 import { useEffect, useRef } from "react"
-import { isMouseLeftOrRightCenter } from "../utils/rectangleFunctions.js"
+import { isMouseLeftOrRightCenter, isMouseLeftOrRightHalf } from "../utils/rectangleFunctions.js"
 
 export default function Board(){
   const {db, globalState} = useGlobalContext()
@@ -16,10 +16,9 @@ export default function Board(){
   const listRefs = useRef([])
 
   // Need to reset listRefs
-  // Need to prevent spamming when on dragging to the left
+  // Dragging card also drags list
 
   function getListBoundingBox(list){
-    console.log(listRefs.current)
     for(const listRef of listRefs.current){
       if(!listRef) continue
       if(listRef.dataset.id == list.id){
@@ -28,42 +27,38 @@ export default function Board(){
     }
   }
 
+  async function putDraggingBoardToLeftOrRight(db, draggingListId, list, leftOrRight: "left" | "right"){
+    const board = await db.boards.get(globalState.boardId)
+    // Remove the currently dragging list
+    board.lists = board.lists.filter((listId) => {return listId != draggingListId})
+    // Get index of current list
+    const listIndex = board.lists.findIndex((listId) => {
+      return listId === list.id
+    })
+    // Get inserting index
+    const insertingIndex = leftOrRight === "left" ? listIndex : (listIndex + 1)
+    // Insert the currently dragging list
+    board.lists.splice(insertingIndex, 0, draggingListId)
+    // Update the board's lists
+    await db.boards.update(globalState.boardId, {
+      lists: [...board.lists]
+    })
+  }
+
   async function onListDrag(event){
     const draggingListId = parseInt(event.target.dataset.id)
-    for(const [i, list] of lists.entries()){
+    for(const list of lists){
       const listRect = getListBoundingBox(list)
       // Exclude the currently dragging list
       if(draggingListId === list.id) continue
       // Check if the dragging list is left or right
-      const leftOrRight = isMouseLeftOrRightCenter(listRect, event.clientX)
+      const leftOrRight = isMouseLeftOrRightHalf(listRect, event.clientX)
       if(leftOrRight === "left"){
-        // Re-order the dragging list to be in front of the current list in this board's lists
-          const board = await db.boards.get(globalState.boardId)
-          // Get index of current list
-          const listIndex = board.lists.findIndex((listId) => {
-            return listId === list.id
-          })
-          // Remove the currently dragging list
-          board.lists = board.lists.filter((listId) => {return listId != draggingListId})
-          // Insert the currently dragging list in front of listIndex
-          board.lists.splice(listIndex, 0, draggingListId)
-          // Update the board's lists
-          await db.boards.update(globalState.boardId, {
-            lists: [...board.lists]
-          })
-          return
+        putDraggingBoardToLeftOrRight(db, draggingListId, list, "left")
+        return
       }else if(leftOrRight === "right"){
-        if(i === (lists.length - 1)){
-          const board = await db.boards.get(globalState.boardId)
-          // Remove the currently dragging list
-          board.lists = board.lists.filter((listId) => {return listId !== draggingListId})
-          // Add currently dragging list to the end
-          board.lists.push(draggingListId)
-          // Update the board's lists
-          await db.boards.update(globalState.boardId, {
-            lists: [...board.lists]
-          })
-        }
+        putDraggingBoardToLeftOrRight(db, draggingListId, list, "right")
+        return
       }
     }
   }
