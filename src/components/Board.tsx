@@ -6,7 +6,7 @@ import Item from "./Container/Item.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
 import { useEffect, useRef } from "react"
-import { isMouseLeftOrRightCenter, isMouseLeftOrRightHalf } from "../utils/rectangleFunctions.js"
+import { isMouseLeftOrRightHalf } from "../utils/rectangleFunctions.js"
 
 export default function Board(){
   const {db, globalState} = useGlobalContext()
@@ -14,11 +14,20 @@ export default function Board(){
     return await getLists(db, globalState.boardId)
   }, [globalState.boardId])
   const listRefs = useRef([])
+  const cardRefs = useRef([])
 
-  // Need to reset listRefs
-  // Dragging card also drags list
+  // Need to rest cardRefs
 
-  function getListBoundingBox(list){
+  // Resets listRefs
+  useEffect(() => {
+    // Remove nulls from listRefs
+    listRefs.current = listRefs.current.filter((refs) => {return refs !== null})
+    // Remove duplicates from listRefs
+    listRefs.current = [...new Set(listRefs.current)]
+  }, [lists])
+
+  // dragging
+  function getListRect(list){
     for(const listRef of listRefs.current){
       if(!listRef) continue
       if(listRef.dataset.id == list.id){
@@ -27,7 +36,7 @@ export default function Board(){
     }
   }
 
-  async function putDraggingBoardToLeftOrRight(db, draggingListId, list, leftOrRight: "left" | "right"){
+  async function putDraggingListToLeftOrRight(draggingListId, list, leftOrRight: "left" | "right"){
     const board = await db.boards.get(globalState.boardId)
     // Remove the currently dragging list
     board.lists = board.lists.filter((listId) => {return listId != draggingListId})
@@ -48,16 +57,16 @@ export default function Board(){
   async function onListDrag(event){
     const draggingListId = parseInt(event.target.dataset.id)
     for(const list of lists){
-      const listRect = getListBoundingBox(list)
+      const listRect = getListRect(list)
       // Exclude the currently dragging list
       if(draggingListId === list.id) continue
       // Check if the dragging list is left or right
       const leftOrRight = isMouseLeftOrRightHalf(listRect, event.clientX)
       if(leftOrRight === "left"){
-        putDraggingBoardToLeftOrRight(db, draggingListId, list, "left")
+        await putDraggingListToLeftOrRight(db, draggingListId, list, "left")
         return
       }else if(leftOrRight === "right"){
-        putDraggingBoardToLeftOrRight(db, draggingListId, list, "right")
+        await putDraggingListToLeftOrRight(db, draggingListId, list, "right")
         return
       }
     }
@@ -94,6 +103,8 @@ export default function Board(){
             includePlus
             itemType="list"
             parentId={globalState.boardId}
+            callbackListRefs={() => {return listRefs}}
+            callbackCardRefs={() => {return cardRefs}}
           />
         </Container>
       )): ""}

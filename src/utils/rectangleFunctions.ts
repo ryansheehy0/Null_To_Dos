@@ -5,6 +5,8 @@ type Rect = {
   height: number
   left: number
   right: number
+  top: number
+  bottom: number
 }
 
 export function isMouseInside(rect: Rect, x: number, y: number): boolean{
@@ -39,4 +41,19 @@ export function isMouseLeftOrRightHalf(rect: Rect, x: number): "left" | "right" 
   if(x > rect.left && x < xCenter) return "left"
   if(x < rect.right && x > xCenter) return "right"
   return "neither"
+}
+
+export function isMouseAboveInsideOrBelow(rect: Rect, y: number): "above" | "inside" | "below"{
+  if(y < rect.top){
+    return "above"
+  }else if(y > rect.bottom){
+    return "below"
+  }else{
+    return "inside"
+  }
+}
+
+export function isMouseHorizontallyInside(rect: Rect, x: number): boolean{
+  if(x > rect.left && x < rect.right) return true
+  return false
 }
