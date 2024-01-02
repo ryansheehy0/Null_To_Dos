@@ -42,72 +42,113 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     }
   }
 
-  async function putDraggingCardAboveOrBelow(draggingCardId, card, aboveOrBelow: "above" | "below", parentType: "list" | "card"){
+  async function putDraggingCardAboveOrBelow(draggingCardId, currentCard, aboveOrBelow: "above" | "below", parentType: "list" | "card"){
+    const draggingCard = await db.cards.get(draggingCardId)
+    // Remove dragging card from it's parent
+    const draggingCardTable = draggingCard.parentType + "s"
+    const draggingCardParent = await db[draggingCardTable].get(draggingCard.parentId)
+    draggingCardParent.cards = draggingCardParent.cards.filter((cardId) => {return cardId !== draggingCardId})
+    await db[draggingCardTable].update(draggingCardParent.id, {
+      cards: [...draggingCardParent.cards]
+    })
+
+    // Get insertion index
+    const currentCardTable = currentCard.parentType + "s"
+    const currentCardParent = await db[currentCardTable].get(currentCard.parentId)
+    const currentCardIndex = currentCardParent.cards.findIndex((cardId) => {return cardId === currentCard.id})
+    const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
+    // Insert dragging card above or below the current card
+    currentCardParent.cards.splice(insertingIndex, 0, draggingCardId)
+    await db[currentCardTable].update(currentCardParent.id, {
+      cards: [...currentCardParent.cards]
+    })
+
+    // Change draggingCard's parentType and parentId
+    await db.cards.update(draggingCardId, {
+      parentId: currentCardParent.id,
+      parentType: currentCard.parentType
+    })
+
+    //debugger
+    // Change to filter function
+
+    /*
     // Go through all the cards and list to remove the dragging card reference
-    const lists = await db.lists.toArray()
+    let lists = await db.lists.toArray()
+    let hasDraggingCard = false
     for(const list of lists){
-      let newCards = []
-      let hasDraggingCard = false
-      for(const cardIds of lists.cards){
-        if(cardIds === draggingCardId){
-          hasDraggingCard = true
-        }else{
-          newCards.push(cardIds)
-        }
-      }
-      if(hasDraggingCard){
+      const newCards = list.cards.filter((cardId) => {return cardId !== draggingCardId})
+      if(newCards.length !== list.cards.length){
+        hasDraggingCard = true
         await db.lists.update(list.id, {
           cards: [...newCards]
         })
+        break
       }
     }
 
-    const cards = await db.cards.toArray()
-    for(const card of cards){
-      let newCards = []
-      let hasDraggingCard = false
-      for(const cardIds of card.cards){
-        if(cardIds === draggingCardId){
-          hasDraggingCard = true
-        }else{
-          newCards.push(cardIds)
+    if(!hasDraggingCard){
+      const cards = await db.cards.toArray()
+      for(const card of cards){
+        if(card.id === draggingCardId) continue
+        const newCards = []
+        let hasDraggingCard = false
+        for(const cardId of card.cards){
+          if(cardId === draggingCardId){
+            hasDraggingCard = true
+          }else{
+            newCards.push(cardId)
+          }
+        }
+        if(hasDraggingCard){
+          await db.cards.update(card.id, {
+            cards: [...newCards]
+          })
+          break
         }
       }
-      if(hasDraggingCard){
-        await db.cards.update(card.id, {
-          cards: [...newCards]
-        })
-      }
     }
 
-    // Find the reference to the current card
-    // Insert dragging card above or below reference to the current card
-    let parent
-    if(parentType === "list"){
-      parent = await db.lists.get(parentId)
-    }else if(parentType === "card"){
-      parent = await db.cards.get(parentId)
+    // Find current card's reference and put dragging card in front or below
+    // Check lists
+    lists = await db.lists.toArray()
+    let hasCurrentCard = false
+    for(const list of lists){
+      const currentCardIndex = list.cards.findIndex((cardId) => {return cardId === currentCard.id})
+      if(currentCardIndex !== -1){// current card is in list
+        console.log(list.cards)
+        hasCurrentCard = true
+        // Get insertion index
+        const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
+        // Insert the currently dragging card
+        list.cards.splice(insertingIndex, 0, draggingCardId)
+        await db.lists.update(list.id, {
+          cards: [...list.cards]
+        })
+        break
+      }
     }
-    // Remove the currently dragging card
-    parent.cards = parent.cards.filter((cardId) => {return cardId != draggingCardId})
-    // Get index of current card
-    const cardIndex = parent.cards.findIndex((cardId) => {
-      return cardId === card.id
-    })
-    // Get inserting index
-    const insertingIndex = aboveOrBelow === "above" ? cardIndex : (cardIndex + 1)
-    // Insert the currently dragging card
-    parent.cards.splice(insertingIndex, 0, draggingCardId)
-    // Update the parent's cards
-    if(parentType === "list"){
-      await db.lists.update(parentId, {
-        cards: [...parent.cards]
-      })
-    }else if(parentType === "card"){
-      await db.cards.update(parentId, {
-        cards: [...parent.cards]
-      })
+    console.log(aboveOrBelow)
+    // Check cards
+    if(!hasCurrentCard){
+      const cards = await db.cards.toArray()
+      for(const card of cards){
+        const currentCardIndex = card.cards.findIndex((cardId) => {
+          return cardId === currentCard.id
+        })
+        if(currentCardIndex !== -1){// current card is in list
+          // Get insertion index
+          const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
+          // Insert the currently dragging card
+          card.cards.splice(insertingIndex, 0, draggingCardId)
+          await db.cards.update(card.id, {
+            cards: [...card.cards]
+          })
+          break
+        }
+      }
     }
+    */
   }
 
   async function putDraggingCardInside(draggingCardId, card, parentType: "list" | "card"){
@@ -231,11 +272,13 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     }
   }
 
-  async function addNewCard() {
+  async function addNewCard(){
     // Create new card
     const newCardId = await db.cards.add({
       name: "",
-      cards: []
+      cards: [],
+      parentId: id,
+      parentType: itemType
     })
     // Add new card to parent's child references
     if(itemType === "list"){

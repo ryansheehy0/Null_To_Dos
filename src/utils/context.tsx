@@ -11,7 +11,7 @@ export default function Provider({children}){
   db.version(1).stores({
     boards: "++id,name,lists",
     lists: "++id,name,cards",
-    cards: "++id,name,cards"
+    cards: "++id,name,cards,parentId,parentType"
   })
 
   useEffect(() => {
