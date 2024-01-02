@@ -31,6 +31,16 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
   const [deleted, setDeleted] = useState(false)
   const trashParentRef = useRef(null)
 
+  let stopDrag = false
+  // Possible problems
+    // The promise.all in useLiveQuery
+    // Add debouncing. While dragging, if the mouse doesn't move from a box for 500ms it runs the code.
+    // rw! and rw?
+    // await with transaction
+
+    // putDraggingCardInside
+    // Put card into empty list
+
   // Dragging
   function getCardRect(card){
     const cardRefs = callbackCardRefs()
@@ -42,115 +52,60 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     }
   }
 
-  async function putDraggingCardAboveOrBelow(draggingCardId, currentCard, aboveOrBelow: "above" | "below", parentType: "list" | "card"){
-    const draggingCard = await db.cards.get(draggingCardId)
-    // Remove dragging card from it's parent
-    const draggingCardTable = draggingCard.parentType + "s"
-    const draggingCardParent = await db[draggingCardTable].get(draggingCard.parentId)
-    draggingCardParent.cards = draggingCardParent.cards.filter((cardId) => {return cardId !== draggingCardId})
-    await db[draggingCardTable].update(draggingCardParent.id, {
-      cards: [...draggingCardParent.cards]
+  async function putDraggingCardAboveOrBelow(draggingCardId, currentCard, aboveOrBelow: "above" | "below"){
+    stopDrag = true
+    console.log("before transaction")
+    await db.transaction("rw", db.cards, db.lists, async () => {
+      console.log("inside transaction")
+      //debugger
+      // If it removes itself from the db, it removes itself from the screen, and stops its own event listeners(drag function).
+      /*
+      So the drag event is tied to the component itself.
+
+      When the component is dragged somewhere it removes itself from the db at a certain place
+
+      When the db changes it changes the state
+
+      When the state changes it goes through a map function and redraws the component
+
+      But when it redraws the components it removes that drag event function.
+
+      This is why when I drag, and the position of the component changes it stop the event listers. Its because the component was unmounted
+      */
+
+      // Get insertion index
+      const currentCardTable = currentCard.parentType + "s"
+      const currentCardParent = await db[currentCardTable].get(currentCard.parentId)
+      const currentCardIndex = currentCardParent.cards.findIndex((cardId) => {return cardId === currentCard.id})
+      const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
+      // Insert dragging card above or below the current card
+      currentCardParent.cards.splice(insertingIndex, 0, draggingCardId)
+      await db[currentCardTable].update(currentCardParent.id, {
+        cards: [...currentCardParent.cards]
+      })
+
+
+      const draggingCard = await db.cards.get(draggingCardId)
+      // Remove dragging card from it's parent
+      const draggingCardTable = draggingCard.parentType + "s"
+      const draggingCardParent = await db[draggingCardTable].get(draggingCard.parentId)
+      draggingCardParent.cards = draggingCardParent.cards.filter((cardId) => {return cardId !== draggingCardId})
+      await db[draggingCardTable].update(draggingCard.parentId, {
+        cards: [...draggingCardParent.cards]
+      })
+
+      // Change draggingCard's parentType and parentId
+      await db.cards.update(draggingCardId, {
+        parentId: currentCardParent.id,
+        parentType: currentCard.parentType
+      })
+
     })
-
-    // Get insertion index
-    const currentCardTable = currentCard.parentType + "s"
-    const currentCardParent = await db[currentCardTable].get(currentCard.parentId)
-    const currentCardIndex = currentCardParent.cards.findIndex((cardId) => {return cardId === currentCard.id})
-    const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
-    // Insert dragging card above or below the current card
-    currentCardParent.cards.splice(insertingIndex, 0, draggingCardId)
-    await db[currentCardTable].update(currentCardParent.id, {
-      cards: [...currentCardParent.cards]
-    })
-
-    // Change draggingCard's parentType and parentId
-    await db.cards.update(draggingCardId, {
-      parentId: currentCardParent.id,
-      parentType: currentCard.parentType
-    })
-
-    //debugger
-    // Change to filter function
-
-    /*
-    // Go through all the cards and list to remove the dragging card reference
-    let lists = await db.lists.toArray()
-    let hasDraggingCard = false
-    for(const list of lists){
-      const newCards = list.cards.filter((cardId) => {return cardId !== draggingCardId})
-      if(newCards.length !== list.cards.length){
-        hasDraggingCard = true
-        await db.lists.update(list.id, {
-          cards: [...newCards]
-        })
-        break
-      }
-    }
-
-    if(!hasDraggingCard){
-      const cards = await db.cards.toArray()
-      for(const card of cards){
-        if(card.id === draggingCardId) continue
-        const newCards = []
-        let hasDraggingCard = false
-        for(const cardId of card.cards){
-          if(cardId === draggingCardId){
-            hasDraggingCard = true
-          }else{
-            newCards.push(cardId)
-          }
-        }
-        if(hasDraggingCard){
-          await db.cards.update(card.id, {
-            cards: [...newCards]
-          })
-          break
-        }
-      }
-    }
-
-    // Find current card's reference and put dragging card in front or below
-    // Check lists
-    lists = await db.lists.toArray()
-    let hasCurrentCard = false
-    for(const list of lists){
-      const currentCardIndex = list.cards.findIndex((cardId) => {return cardId === currentCard.id})
-      if(currentCardIndex !== -1){// current card is in list
-        console.log(list.cards)
-        hasCurrentCard = true
-        // Get insertion index
-        const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
-        // Insert the currently dragging card
-        list.cards.splice(insertingIndex, 0, draggingCardId)
-        await db.lists.update(list.id, {
-          cards: [...list.cards]
-        })
-        break
-      }
-    }
-    console.log(aboveOrBelow)
-    // Check cards
-    if(!hasCurrentCard){
-      const cards = await db.cards.toArray()
-      for(const card of cards){
-        const currentCardIndex = card.cards.findIndex((cardId) => {
-          return cardId === currentCard.id
-        })
-        if(currentCardIndex !== -1){// current card is in list
-          // Get insertion index
-          const insertingIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
-          // Insert the currently dragging card
-          card.cards.splice(insertingIndex, 0, draggingCardId)
-          await db.cards.update(card.id, {
-            cards: [...card.cards]
-          })
-          break
-        }
-      }
-    }
-    */
+    console.log("after transaction")
+    stopDrag = false
   }
 
+/*
   async function putDraggingCardInside(draggingCardId, card, parentType: "list" | "card"){
     // Remove dragging card from parent
     let parent
@@ -178,30 +133,36 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
       cards: [...card.cards]
     })
   }
+*/
 
-  async function cardDragging(event, cards, parentType: "list" | "card"){
+  async function cardDragging(event, cards){
     const draggingCardId = parseInt(event.target.dataset.id)
-    for(const cardId of cards){
+    for(const [i, cardId] of cards.entries()){
+      // Exclude the currently dragging card
+      if(draggingCardId === cardId) continue
+      // Get card
       const card = await db.cards.get(cardId)
       const cardRect = getCardRect(card)
-      // Exclude the currently dragging card
-      if(draggingCardId === card.id) continue
       // Check if the dragging card is above, inside, or below
       const aboveInsideOrBelow = isMouseAboveInsideOrBelow(cardRect, event.clientY)
       if(aboveInsideOrBelow === "above"){
-        await putDraggingCardAboveOrBelow(draggingCardId, card, "above", parentType)
+        await putDraggingCardAboveOrBelow(draggingCardId, card, "above")
         return
       }else if(aboveInsideOrBelow === "inside"){
         //debugger
         if(card.cards.length !== 0){
-          await cardDragging(event, card.cards, "card")
+          await cardDragging(event, card.cards)
+          return
         }else{
-          await putDraggingCardInside(draggingCardId, card, parentType)
+          //await putDraggingCardInside(draggingCardId, card, parentType)
           return
         }
       }else if(aboveInsideOrBelow === "below"){
-        await putDraggingCardAboveOrBelow(draggingCardId, card, "below", parentType)
-        return
+        if(i === cards.length - 1){
+          await putDraggingCardAboveOrBelow(draggingCardId, card, "below")
+          console.log("below")
+          return
+        }
       }
     }
   }
@@ -216,8 +177,13 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     }
   }
 
+  let number = 0
   async function onCardDrag(event){
     event.stopPropagation()
+    if(stopDrag) return
+    number += 1
+    console.log(number)
+    //if(number % 100 !== 0) return
     const board = await db.boards.get(globalState.boardId)
     for(const listId of board.lists){
       const list = await db.lists.get(listId)
@@ -226,10 +192,11 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
       if(!isMouseHorizontallyInside(listRect, event.clientX)) continue
 
       if(list.cards.length !== 0){
-        await cardDragging(event, list.cards, "list")
+        await cardDragging(event, list.cards)
       }else{
         // Add dragging card into list
       }
+      return
     }
   }
 

@@ -26,6 +26,14 @@ export default function Board(){
     listRefs.current = [...new Set(listRefs.current)]
   }, [lists])
 
+  // Resets cardRefs
+  useEffect(() => {
+    // Remove nulls from cardRefs
+    cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
+    // Remove duplicates from cardRefs
+    cardRefs.current = [...new Set(cardRefs.current)]
+  }, [cardRefs])
+
   // dragging
   function getListRect(list){
     for(const listRef of listRefs.current){
