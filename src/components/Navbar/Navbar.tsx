@@ -8,14 +8,14 @@ import { useGlobalContext } from "../../utils/context.js"
 import NavIcon from "./NavIcon.js"
 import Container from "../Container/Container.js"
 import AddElement from "../Container/AddElement.js"
-import Item from "../Container/Item.js"
 import { useLiveQuery } from "dexie-react-hooks"
+import Board from "../Container/Board.js"
 
 export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
   const boards = useLiveQuery(async () => {
     return await db.boards.toArray()
-  }, [globalState.boardId])
+  }, [])
 
   async function addNewBoard(){
     await db.boards.add({
@@ -54,16 +54,11 @@ export default function Navbar(){
           <div className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
             {/* Display all the boards */}
             {boards ? boards.map((board) => (
-              <Container
+              <Board
                 key={board.id} id={board.id}
-                containerType="board"
-                onClick={selectBoard}>
-                <Item
-                  id={board.id}
-                  name={board.name}
-                  includePlus={false}
-                  itemType="board"/>
-              </Container>
+                name={board.name}
+                onClick={selectBoard}
+              />
             )): ""}
             {/* Add new board button */}
             <Container

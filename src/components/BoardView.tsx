@@ -2,13 +2,13 @@ import { twMerge as tm } from "tailwind-merge"
 import Container from "./Container/Container.js"
 import { useGlobalContext } from "../utils/context.js"
 import AddElement from "./Container/AddElement.js"
-import Item from "./Container/Item.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
 import { useEffect, useRef } from "react"
 import { isMouseLeftOrRightHalf } from "../utils/rectangleFunctions.js"
+import List from "./Container/List.js"
 
-export default function Board(){
+export default function BoardView(){
   const {db, globalState} = useGlobalContext()
   const lists = useLiveQuery(async () => {
     return await getLists(db, globalState.boardId)
@@ -99,22 +99,14 @@ export default function Board(){
       globalState.open && "w-[calc(100vw-(var(--cardWidth)+(2*var(--cardSpacing))))]")}>
       {/* Display all the lists in the board */}
       {lists ? lists.map((list) => (
-        <Container
+        <List
           key={list.id} id={list.id}
-          containerType="list"
-          className="flex-shrink-0"
+          name={list.name}
           ref={(ref) => listRefs.current.push(ref)}
-          onDrag={onListDrag}>
-          <Item
-            id={list.id}
-            name={list.name}
-            includePlus
-            itemType="list"
-            parentId={globalState.boardId}
-            callbackListRefs={() => {return listRefs}}
-            callbackCardRefs={() => {return cardRefs}}
-          />
-        </Container>
+          callbackCardRefs={() => {return cardRefs}}
+          callbackListRefs={() => {return listRefs}}
+          className="flex-shrink-0"
+        />
       )): ""}
       {/* Add new list button */}
       <Container
