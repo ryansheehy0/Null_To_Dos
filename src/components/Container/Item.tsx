@@ -30,6 +30,7 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
   const [itemValue, setItemValue] = useState(name)
   const [deleted, setDeleted] = useState(false)
   const trashParentRef = useRef(null)
+  const hideElement = useState(false)
 
   let stopDrag = false
   // Possible problems
@@ -37,6 +38,9 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     // Add debouncing. While dragging, if the mouse doesn't move from a box for 500ms it runs the code.
     // rw! and rw?
     // await with transaction
+
+    // ! Add event listerns with ref and useEffect. That way when they are unmouted it doesn't effect the 
+      // No. Won't work. The element on the dom changes
 
     // putDraggingCardInside
     // Put card into empty list
@@ -73,6 +77,24 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
       This is why when I drag, and the position of the component changes it stop the event listers. Its because the component was unmounted
       */
 
+      // Test
+        // Move draggingCard 
+        // Don't remove it from the db until the drag is ended. Instead just set the visibility to 0
+
+        // On drag start set visibility to 0
+        // While dragging move copy of dragging card around
+        // On drag end remove card
+
+      const draggingCard = await db.cards.get(draggingCardId)
+      // Remove dragging card from it's parent
+      const draggingCardTable = draggingCard.parentType + "s"
+      const draggingCardParent = await db[draggingCardTable].get(draggingCard.parentId)
+      draggingCardParent.cards = draggingCardParent.cards.filter((cardId) => {return cardId !== draggingCardId})
+      await db[draggingCardTable].update(draggingCard.parentId, {
+        cards: [...draggingCardParent.cards]
+      })
+
+      /*
       // Get insertion index
       const currentCardTable = currentCard.parentType + "s"
       const currentCardParent = await db[currentCardTable].get(currentCard.parentId)
@@ -84,21 +106,12 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
         cards: [...currentCardParent.cards]
       })
 
-
-      const draggingCard = await db.cards.get(draggingCardId)
-      // Remove dragging card from it's parent
-      const draggingCardTable = draggingCard.parentType + "s"
-      const draggingCardParent = await db[draggingCardTable].get(draggingCard.parentId)
-      draggingCardParent.cards = draggingCardParent.cards.filter((cardId) => {return cardId !== draggingCardId})
-      await db[draggingCardTable].update(draggingCard.parentId, {
-        cards: [...draggingCardParent.cards]
-      })
-
       // Change draggingCard's parentType and parentId
       await db.cards.update(draggingCardId, {
         parentId: currentCardParent.id,
         parentType: currentCard.parentType
       })
+      */
 
     })
     console.log("after transaction")
@@ -179,11 +192,13 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
 
   let number = 0
   async function onCardDrag(event){
-    event.stopPropagation()
-    if(stopDrag) return
     number += 1
     console.log(number)
+
+    //if(stopDrag) return
     //if(number % 100 !== 0) return
+
+    event.stopPropagation()
     const board = await db.boards.get(globalState.boardId)
     for(const listId of board.lists){
       const list = await db.lists.get(listId)
@@ -293,6 +308,8 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
             cardRefs.current.push(ref)
           }}
           onDrag={onCardDrag}
+          onDragStart={() => {console.log("start")}}
+          onDragEnd={() => {console.log("end")}}
           >
           <Item
             id={card.id}
