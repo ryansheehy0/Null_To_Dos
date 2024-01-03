@@ -1,33 +1,26 @@
 import { twMerge as tm } from "tailwind-merge"
-import Item from "./Item"
-import AddElement from "./AddElement"
-import React from "react"
+import Plus from "../../assets/plus.svg?react"
+import { useGlobalContext } from "../../utils/context"
 
-type ContainerProps = {
-  id?: number
-  containerType: "card" | "list" | "board"
-  children: React.ReactElement<typeof AddElement> | React.ReactElement<typeof Item>
-  className?: string
-} & React.HTMLProps<HTMLDivElement>
+export default function AddAnotherBoard(){
+  const {db} = useGlobalContext()
 
-const Container = React.forwardRef(({id, containerType, children, className, ...props} : ContainerProps, ref) => {
-
+  async function addNewBoard(){
+    await db.boards.add({
+      name: "",
+      lists: []
+    })
+  }
 
   return (
     <div
-      ref={ref}
-      data-id={id}
-      className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing] box-border ml-[--cardSpacing]",
-        (containerType === "card" || containerType === "board") && "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkBackground",
-        containerType === "list" && "bg-lightList dark:bg-darkList",
-        children.type === AddElement && "cursor-pointer",
-        className
-      )}
-      draggable={children.type === Item && (containerType === "card" || containerType === "list") ? "true" : "false"}
-      {...props}>
-      {children}
+      className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing] box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkBackground", "cursor-pointer")}
+      draggable="false"
+      onClick={addNewBoard}>
+        <div className="flex items-center justify-center text-lightText dark:text-darkText h-4 rounded-xl box-content">
+          <Plus className="w-[--iconSize] h-[--iconSize]"/>
+          Add another board
+        </div>
     </div>
   )
-})
-
-export default Container
+}

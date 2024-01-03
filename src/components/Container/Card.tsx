@@ -15,6 +15,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   const cards = useLiveQuery(() => {
     return getCardsFromCard(db, id)
   })
+  const [hideCard, setHideCard] = useState(false)
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -70,12 +71,33 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     })
   }
 
+  function onDragStart(event: DragEvent){
+  /*
+    const customDragImage = document.createElement('div');
+    customDragImage.style.width = '500px';
+    customDragImage.style.height = '25px';
+    customDragImage.style.backgroundColor = 'green';
+    customDragImage.style.position = "absolute"
+    document.body.appendChild(customDragImage)
+    event.dataTransfer.setDragImage(customDragImage, 100, 0)
+    */
+    setTimeout(() => {
+      setDragging(true)
+    }, 300)
+  }
+
+  function onDragEnd(){
+    setDragging(false)
+  }
+
   return (
     <div
       ref={ref}
       data-id={id}
-      className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing]  box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkBackground", className)}
+      className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing]  box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkBackground", className, hideCard && "hidden")}
       draggable="true"
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
           <textarea className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={textarea} onInput={onTextareaInput} rows={1} spellCheck={false}></textarea>

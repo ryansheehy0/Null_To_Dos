@@ -6,23 +6,15 @@ import Upload from "../../assets/upload.svg?react"
 import { twMerge as tm } from "tailwind-merge"
 import { useGlobalContext } from "../../utils/context.js"
 import NavIcon from "./NavIcon.js"
-import Container from "../Container/Container.js"
-import AddElement from "../Container/AddElement.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import Board from "../Container/Board.js"
+import AddAnotherBoard from "../Container/AddAnotherBoard.js"
 
 export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
   const boards = useLiveQuery(async () => {
     return await db.boards.toArray()
   }, [])
-
-  async function addNewBoard(){
-    await db.boards.add({
-      name: "",
-      lists: []
-    })
-  }
 
   function selectBoard(event){
     let boardId
@@ -61,11 +53,7 @@ export default function Navbar(){
               />
             )): ""}
             {/* Add new board button */}
-            <Container
-              containerType="board"
-              onClick={addNewBoard}>
-              <AddElement text="Add another board"/>
-            </Container>
+            <AddAnotherBoard />
           </div>
         </>
       ): "" }

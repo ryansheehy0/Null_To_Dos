@@ -1,12 +1,11 @@
 import { twMerge as tm } from "tailwind-merge"
-import Container from "./Container/Container.js"
 import { useGlobalContext } from "../utils/context.js"
-import AddElement from "./Container/AddElement.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
 import { useEffect, useRef } from "react"
 import { isMouseLeftOrRightHalf } from "../utils/rectangleFunctions.js"
 import List from "./Container/List.js"
+import AddAnotherList from "./Container/AddAnotherList.js"
 
 export default function BoardView(){
   const {db, globalState} = useGlobalContext()
@@ -80,19 +79,6 @@ export default function BoardView(){
     }
   }
 
-  async function addNewList(){
-    // Create new list
-    const newListId = await db.lists.add({
-      name: "",
-      cards: []
-    })
-    // Add new list to board's lists
-    const board = await db.boards.get(globalState.boardId)
-    await db.boards.update(globalState.boardId, {
-      lists: [...board.lists, newListId]
-    })
-  }
-
   return (
     <div
       className={tm("w-[calc(100vw-var(--cardHeight))] overflow-auto h-screen bg-lightText dark:bg-darkText absolute top-0 right-0 flex justify-start", 
@@ -109,12 +95,7 @@ export default function BoardView(){
         />
       )): ""}
       {/* Add new list button */}
-      <Container
-        containerType="list"
-        className="mr-[--cardSpacing]"
-        onClick={addNewList}>
-        <AddElement text="Add another list" />
-      </Container>
+      <AddAnotherList />
     </div>
   )
 }
