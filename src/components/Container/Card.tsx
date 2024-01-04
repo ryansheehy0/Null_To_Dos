@@ -14,8 +14,10 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
   const [deleted, setDeleted] = useState(false)
-  const cards = useLiveQuery(() => {
-    return getCardsFromCard(db, id)
+  const cards = useLiveQuery(async () => {
+    const cards = await getCardsFromCard(db, id)
+    console.log(id, cards)
+    return cards
   })
   const [hideCard, setHideCard] = useState(false)
   const [startDragEvents, setStartDragEvents] = useState(false)
@@ -23,7 +25,8 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   // Need to check dragging fast
   // Need to leave comments explaining what the problem is and why hideCard is necessary
   // Problem with adding multiple of the same card
-  // Dragging out of another card creating just 1 layer of cards causes problems
+    // Maybe the problem is with jumpy cards when inserting and exiting?
+  // Not allowing dragging again. Continuos prevention
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -113,15 +116,8 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         })
       }
 
-      console.log("draggingCard.parentId" , draggingCard.parentId)
-      console.log("currentCard.parentId" , currentCard.parentId)
-      console.log("draggingCard.parentType" , draggingCard.parentType)
-      console.log("currentCard.parentType" , currentCard.parentType)
       // If the parent of the draggingCard is the same as the parent of the currentCard
       if(draggingCard.parentId === currentCard.parentId && draggingCard.parentType === currentCard.parentType){
-        //debugger
-        // Unhide dragging card
-        setHideCard(false)
         // Get the current card's parent
         const parent = await db[currentCard.parentType + "s"].get(currentCard.parentId)
         // Remove the dragging card from the parent
@@ -141,9 +137,13 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
           parentId: currentCard.parentId,
           parentType: currentCard.parentType
         })
+        // Unhide dragging card
+        setHideCard(false)
       }else{
         // Get the current card's parent
         const parent = await db[currentCard.parentType + "s"].get(currentCard.parentId)
+        // Filter out dragging card just in case?
+        parent.cards = parent.cards.filter((cardId) => {return cardId !== draggingCardId})
         // Find index where to place
         const currentCardIndex = parent.cards.findIndex((cardId) => {return cardId === currentCard.id})
         const insertionIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
@@ -167,7 +167,6 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
 
   async function cardDragging(event, cards){
     const draggingCardId = parseInt(event.target.dataset.id)
-    //debugger
     for(const [i, cardId] of cards.entries()){
       // Exclude the currently dragging card
       if(draggingCardId === cardId) continue
@@ -241,22 +240,26 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   function onDragStart(event){
     // Used to ensure the browser has time to set the dragging image
     setTimeout(async () => {
+      console.log("start drag")
       setStartDragEvents(true)
     }, 400)
   }
 
   async function onDragEnd(){
-    console.log("drag ending")
     if(hideCard){
-      // Update db value of dragging card
+      // Get previous values of card
+      const card = await db.cards.get(id)
+      const oldParentId = card.parentId
+      const oldParentType = card.parentType
+      // Update db value of card
       await db.cards.update(id, {
         parentId: newDraggingCard.parentId,
         parentType: newDraggingCard.parentType,
       })
       // Remove reference to card in parent
-      const parent = await db[parentType + "s"].get(parentId)
+      const parent = await db[oldParentType + "s"].get(oldParentId)
       parent.cards = parent.cards.filter((cardId) => {return cardId !== id})
-      await db[parentType + "s"].update(parentId, {
+      await db[oldParentType + "s"].update(oldParentId, {
         cards: [...parent.cards]
       })
     }

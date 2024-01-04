@@ -13,7 +13,7 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
   const [deleted, setDeleted] = useState(false)
-  const cards = useLiveQuery(() => {
+  const cards = useLiveQuery(async () => {
     return getCardsFromList(db, id)
   })
 
