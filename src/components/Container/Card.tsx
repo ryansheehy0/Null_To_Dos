@@ -15,18 +15,22 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   const trashParentRef = useRef(null)
   const [deleted, setDeleted] = useState(false)
   const cards = useLiveQuery(async () => {
-    const cards = await getCardsFromCard(db, id)
-    console.log(id, cards)
-    return cards
+    return getCardsFromCard(db, id)
   })
   const [hideCard, setHideCard] = useState(false)
   const [startDragEvents, setStartDragEvents] = useState(false)
 
-  // Need to check dragging fast
   // Need to leave comments explaining what the problem is and why hideCard is necessary
-  // Problem with adding multiple of the same card
-    // Maybe the problem is with jumpy cards when inserting and exiting?
-  // Not allowing dragging again. Continuos prevention
+
+  // Resets cardRefs
+  useEffect(() => {
+    const cardRefs = callbackCardRefs()
+    // Remove nulls from cardRefs
+    cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
+    // Remove duplicates from cardRefs
+    cardRefs.current = [...new Set(cardRefs.current)]
+  }, [cards, callbackCardRefs])
+
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -85,6 +89,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   // Dragging functions
   function getCardRect(card){
     const cardRefs = callbackCardRefs()
+    console.log(cardRefs)
     for(const cardRef of cardRefs.current){
       if(!cardRef) continue
       if(cardRef.dataset.id == card.id){
@@ -116,49 +121,31 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         })
       }
 
+      // Get the current card's parent
+      const parent = await db[currentCard.parentType + "s"].get(currentCard.parentId)
+      // Remove the dragging card from the parent
+      parent.cards = parent.cards.filter((cardId) => {return cardId !== draggingCardId})
+      // Find index where to place
+      const currentCardIndex = parent.cards.findIndex((cardId) => {return cardId === currentCard.id})
+      const insertionIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
+      // Insert the draggingCardId into the parent cards
+      parent.cards.splice(insertionIndex, 0, draggingCardId)
+      // Update parent's cards
+      await db[currentCard.parentType + "s"].update(parent.id, {
+        cards: [...parent.cards]
+      })
+      // Set newDraggingCard
+      setNewDraggingCard({
+        ...newDraggingCard,
+        parentId: currentCard.parentId,
+        parentType: currentCard.parentType
+      })
+
       // If the parent of the draggingCard is the same as the parent of the currentCard
       if(draggingCard.parentId === currentCard.parentId && draggingCard.parentType === currentCard.parentType){
-        // Get the current card's parent
-        const parent = await db[currentCard.parentType + "s"].get(currentCard.parentId)
-        // Remove the dragging card from the parent
-        parent.cards = parent.cards.filter((cardId) => {return cardId !== draggingCardId})
-        // Find index where to place
-        const currentCardIndex = parent.cards.findIndex((cardId) => {return cardId === currentCard.id})
-        const insertionIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
-        // Insert the draggingCardId into the parent cards
-        parent.cards.splice(insertionIndex, 0, draggingCardId)
-        // Update parent's cards
-        await db[currentCard.parentType + "s"].update(parent.id, {
-          cards: [...parent.cards]
-        })
-        // Set newDraggingCard
-        setNewDraggingCard({
-          ...newDraggingCard,
-          parentId: currentCard.parentId,
-          parentType: currentCard.parentType
-        })
         // Unhide dragging card
         setHideCard(false)
       }else{
-        // Get the current card's parent
-        const parent = await db[currentCard.parentType + "s"].get(currentCard.parentId)
-        // Filter out dragging card just in case?
-        parent.cards = parent.cards.filter((cardId) => {return cardId !== draggingCardId})
-        // Find index where to place
-        const currentCardIndex = parent.cards.findIndex((cardId) => {return cardId === currentCard.id})
-        const insertionIndex = aboveOrBelow === "above" ? currentCardIndex : (currentCardIndex + 1)
-        // Insert the draggingCardId into the parent cards
-        parent.cards.splice(insertionIndex, 0, draggingCardId)
-        // Update parent's cards
-        await db[currentCard.parentType + "s"].update(parent.id, {
-          cards: [...parent.cards]
-        })
-        // Set newDraggingCard
-        setNewDraggingCard({
-          ...newDraggingCard,
-          parentId: currentCard.parentId,
-          parentType: currentCard.parentType
-        })
         // Hide dragging card
         setHideCard(true)
       }

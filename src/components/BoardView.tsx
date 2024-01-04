@@ -15,8 +15,6 @@ export default function BoardView(){
   const listRefs = useRef([])
   const cardRefs = useRef([])
 
-  // Need to rest cardRefs
-
   // Resets listRefs
   useEffect(() => {
     // Remove nulls from listRefs
@@ -24,14 +22,6 @@ export default function BoardView(){
     // Remove duplicates from listRefs
     listRefs.current = [...new Set(listRefs.current)]
   }, [lists])
-
-  // Resets cardRefs
-  useEffect(() => {
-    // Remove nulls from cardRefs
-    cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
-    // Remove duplicates from cardRefs
-    cardRefs.current = [...new Set(cardRefs.current)]
-  }, [cardRefs])
 
   // dragging
   function getListRect(list){
