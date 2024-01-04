@@ -89,6 +89,11 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
             <Card
               key={card.id} id={card.id}
               parentId={card.parentId} parentType={card.parentType}
+              name={card.name}
+              ref={(ref) => {
+                const cardRefs = callbackCardRefs()
+                cardRefs.current.push(ref)}
+              }
               callbackCardRefs={callbackCardRefs}
               callbackListRefs={callbackListRefs}
               className="flex-shrink-0 col-span-2"
