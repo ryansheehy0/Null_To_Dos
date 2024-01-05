@@ -57,3 +57,11 @@ export function isMouseHorizontallyInside(rect: Rect, x: number): boolean{
   if(x > rect.left && x < rect.right) return true
   return false
 }
+
+export function isValidRect(rect: Rect){
+  // Invalid rects have all their properties set to 0
+  if(rect.width === 0 && rect.height === 0){
+    return false
+  }
+  return true
+}

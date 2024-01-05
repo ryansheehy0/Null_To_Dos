@@ -118,7 +118,6 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
     stopDrag = false
   }
 
-/*
   async function putDraggingCardInside(draggingCardId, card, parentType: "list" | "card"){
     // Remove dragging card from parent
     let parent
@@ -146,7 +145,6 @@ export default function Item({id, name, includePlus, itemType, parentId, parentT
       cards: [...card.cards]
     })
   }
-*/
 
   async function cardDragging(event, cards){
     const draggingCardId = parseInt(event.target.dataset.id)

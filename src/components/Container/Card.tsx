@@ -6,7 +6,7 @@ import Plus from "../../assets/plus.svg?react"
 import { recursivelyDeleteCard, getCardsFromCard } from "../../utils/database"
 import { useLiveQuery } from "dexie-react-hooks"
 import React from "react"
-import { isMouseHorizontallyInside, isMouseAboveInsideOrBelow } from "../../utils/rectangleFunctions"
+import { isMouseHorizontallyInside, isMouseAboveInsideOrBelow, isValidRect } from "../../utils/rectangleFunctions"
 import transact from "../../utils/transaction"
 
 const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs, callbackListRefs, className, ...props}, ref) => {
@@ -89,11 +89,13 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   // Dragging functions
   function getCardRect(card){
     const cardRefs = callbackCardRefs()
-    console.log(cardRefs)
     for(const cardRef of cardRefs.current){
       if(!cardRef) continue
       if(cardRef.dataset.id == card.id){
-        return cardRef.getBoundingClientRect()
+        const cardRect = cardRef.getBoundingClientRect()
+        // Filter out invalid cardRects
+        if(!isValidRect(cardRect)) continue
+        return cardRect
       }
     }
   }
@@ -152,6 +154,47 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     })
   }
 
+  async function putDraggingCardInside(draggingCardId, currentCard){
+    // Note: This only runs when currentCard has no children
+    await transact(db, async () => {
+      // Get dragging card
+      const draggingCard = await db.cards.get(draggingCardId)
+
+      // If the parent of the newDraggingCard isn't the same as the draggingCard
+      if(!(newDraggingCard.parentId === draggingCard.parentId && newDraggingCard.parentType === draggingCard.parentType)){
+        // Remove the newDraggingCard from its parent
+        const newDraggingCardParent = await db[newDraggingCard.parentType + "s"].get(newDraggingCard.parentId)
+        newDraggingCardParent.cards = newDraggingCardParent.cards.filter((cardId) => {return cardId !== newDraggingCard.id})
+        await db[newDraggingCard.parentType + "s"].update(newDraggingCardParent.id, {
+          cards: [...newDraggingCardParent.cards]
+        })
+      }
+
+      // Remove the dragging card from the currentCard
+      currentCard.cards = currentCard.cards.filter((cardId) => {return cardId !== draggingCardId})
+      // Insert the draggingCardId to the end of the currentCard's cards
+      currentCard.cards.push(draggingCardId)
+      // Update current card
+      await db.cards.update(currentCard.id, {
+        cards: [...currentCard.cards]
+      })
+      // set newDraggingCard
+      setNewDraggingCard({
+        ...newDraggingCard,
+        parentId: currentCard.id,
+        parentType: "card"
+      })
+      // If the currentCard is the parent of the draggingCard
+      if((currentCard.id === draggingCard.parentId) && (draggingCard.parentType == "card")){
+        // Un-hide
+        setHideCard(false)
+      }else{
+        // Hide
+        setHideCard(true)
+      }
+    })
+  }
+
   async function cardDragging(event, cards){
     const draggingCardId = parseInt(event.target.dataset.id)
     for(const [i, cardId] of cards.entries()){
@@ -163,21 +206,18 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
       // Check if the dragging card is above, inside, or below
       const aboveInsideOrBelow = isMouseAboveInsideOrBelow(cardRect, event.clientY)
       if(aboveInsideOrBelow === "above"){
-        console.log("above")
         await putDraggingCardAboveOrBelow(draggingCardId, card, "above")
         return
       }else if(aboveInsideOrBelow === "inside"){
-        if(card.cards.length !== 0){
-          await cardDragging(event, card.cards)
-          return
+        if((card.cards.length === 0) || (card.cards.length === 1 && card.cards[0] === draggingCardId)){ // What if the inside card is the hidden card?
+        //if(card.cards.length === 0){
+          await putDraggingCardInside(draggingCardId, card)
         }else{
-          //await putDraggingCardInside(draggingCardId, card, parentType)
-          console.log("inside")
-          return
+          await cardDragging(event, card.cards)
         }
+        return
       }else if(aboveInsideOrBelow === "below"){
-        if((i === cards.length - 1 && cards.at(-1) !== draggingCardId) || (i === cards.length - 2 && cards.at(-1) === draggingCardId)){ // What about if it isn't the last card because of the hidden element?
-          console.log("below")
+        if((i === cards.length - 1 && cards.at(-1) !== draggingCardId) || (i === cards.length - 2 && cards.at(-1) === draggingCardId)){ // What about if it isn't the last card because of the hidden card?
           await putDraggingCardAboveOrBelow(draggingCardId, card, "below")
           return
         }
@@ -197,10 +237,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
 
   async function onCardDrag(event){
     event.stopPropagation()
-    if(!startDragEvents){
-      console.log("prevented")
-      return
-    }
+    if(!startDragEvents) return
 
     setStartDragEvents(false) // Used to prevent other drag events running while a previous await drag event is running
 
@@ -224,10 +261,9 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     setStartDragEvents(true)
   }
 
-  function onDragStart(event){
+  function onDragStart(){
     // Used to ensure the browser has time to set the dragging image
     setTimeout(async () => {
-      console.log("start drag")
       setStartDragEvents(true)
     }, 400)
   }
