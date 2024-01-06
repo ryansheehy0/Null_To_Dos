@@ -154,7 +154,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     })
   }
 
-  async function putDraggingCardInside(draggingCardId, currentCard){
+  async function putDraggingCardInside(draggingCardId, item, cardOrList: "card" | "list"){
     // Note: This only runs when currentCard has no children
     await transact(db, async () => {
       // Get dragging card
@@ -170,22 +170,22 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         })
       }
 
-      // Remove the dragging card from the currentCard
-      currentCard.cards = currentCard.cards.filter((cardId) => {return cardId !== draggingCardId})
-      // Insert the draggingCardId to the end of the currentCard's cards
-      currentCard.cards.push(draggingCardId)
+      // Remove the dragging card from the item
+      item.cards = item.cards.filter((cardId) => {return cardId !== draggingCardId})
+      // Insert the draggingCardId to the end of the item's cards
+      item.cards.push(draggingCardId)
       // Update current card
-      await db.cards.update(currentCard.id, {
-        cards: [...currentCard.cards]
+      await db[cardOrList + "s"].update(item.id, {
+        cards: [...item.cards]
       })
       // set newDraggingCard
       setNewDraggingCard({
         ...newDraggingCard,
-        parentId: currentCard.id,
-        parentType: "card"
+        parentId: item.id,
+        parentType: cardOrList
       })
-      // If the currentCard is the parent of the draggingCard
-      if((currentCard.id === draggingCard.parentId) && (draggingCard.parentType == "card")){
+      // If the item is the parent of the draggingCard
+      if((item.id === draggingCard.parentId) && (draggingCard.parentType == cardOrList)){
         // Un-hide
         setHideCard(false)
       }else{
@@ -195,8 +195,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     })
   }
 
-  async function cardDragging(event, cards){
-    const draggingCardId = parseInt(event.target.dataset.id)
+  async function cardDragging(draggingCardId, clientY, cards){
     for(const [i, cardId] of cards.entries()){
       // Exclude the currently dragging card
       if(draggingCardId === cardId) continue
@@ -204,16 +203,15 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
       const card = await db.cards.get(cardId)
       const cardRect = getCardRect(card)
       // Check if the dragging card is above, inside, or below
-      const aboveInsideOrBelow = isMouseAboveInsideOrBelow(cardRect, event.clientY)
+      const aboveInsideOrBelow = isMouseAboveInsideOrBelow(cardRect, clientY)
       if(aboveInsideOrBelow === "above"){
         await putDraggingCardAboveOrBelow(draggingCardId, card, "above")
         return
       }else if(aboveInsideOrBelow === "inside"){
         if((card.cards.length === 0) || (card.cards.length === 1 && card.cards[0] === draggingCardId)){ // What if the inside card is the hidden card?
-        //if(card.cards.length === 0){
-          await putDraggingCardInside(draggingCardId, card)
+          await putDraggingCardInside(draggingCardId, card, "card")
         }else{
-          await cardDragging(event, card.cards)
+          await cardDragging(draggingCardId, clientY, card.cards)
         }
         return
       }else if(aboveInsideOrBelow === "below"){
@@ -249,10 +247,14 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         // Find which list the dragging card is in
         if(!isMouseHorizontallyInside(listRect, event.clientX)) continue
 
+        const draggingCardId = parseInt(event.target.dataset.id)
+        const clientY = event.clientY
+
         if(list.cards.length !== 0){
-          await cardDragging(event, list.cards)
+          await cardDragging(draggingCardId, clientY, list.cards)
         }else{
           // Add dragging card into list
+          putDraggingCardInside(draggingCardId, list, "list")
         }
         break
       }
