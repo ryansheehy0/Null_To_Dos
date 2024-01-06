@@ -22,16 +22,6 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
 
   // Need to leave comments explaining what the problem is and why hideCard is necessary
 
-  // Resets cardRefs
-  useEffect(() => {
-    const cardRefs = callbackCardRefs()
-    // Remove nulls from cardRefs
-    cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
-    // Remove duplicates from cardRefs
-    cardRefs.current = [...new Set(cardRefs.current)]
-  }, [cards, callbackCardRefs])
-
-
   // Remove deleted on click outside
   useEffect(() => {
     function handleClickOutside(event){

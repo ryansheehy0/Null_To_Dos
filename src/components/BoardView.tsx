@@ -3,7 +3,6 @@ import { useGlobalContext } from "../utils/context.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
 import { useEffect, useRef } from "react"
-import { isMouseLeftOrRightHalf } from "../utils/rectangleFunctions.js"
 import List from "./Container/List.js"
 import AddAnotherList from "./Container/AddAnotherList.js"
 
@@ -22,52 +21,6 @@ export default function BoardView(){
     // Remove duplicates from listRefs
     listRefs.current = [...new Set(listRefs.current)]
   }, [lists])
-
-  // dragging
-  function getListRect(list){
-    for(const listRef of listRefs.current){
-      if(!listRef) continue
-      if(listRef.dataset.id == list.id){
-        return listRef.getBoundingClientRect()
-      }
-    }
-  }
-
-  async function putDraggingListToLeftOrRight(draggingListId, list, leftOrRight: "left" | "right"){
-    const board = await db.boards.get(globalState.boardId)
-    // Remove the currently dragging list
-    board.lists = board.lists.filter((listId) => {return listId != draggingListId})
-    // Get index of current list
-    const listIndex = board.lists.findIndex((listId) => {
-      return listId === list.id
-    })
-    // Get inserting index
-    const insertingIndex = leftOrRight === "left" ? listIndex : (listIndex + 1)
-    // Insert the currently dragging list
-    board.lists.splice(insertingIndex, 0, draggingListId)
-    // Update the board's lists
-    await db.boards.update(globalState.boardId, {
-      lists: [...board.lists]
-    })
-  }
-
-  async function onListDrag(event){
-    const draggingListId = parseInt(event.target.dataset.id)
-    for(const list of lists){
-      const listRect = getListRect(list)
-      // Exclude the currently dragging list
-      if(draggingListId === list.id) continue
-      // Check if the dragging list is left or right
-      const leftOrRight = isMouseLeftOrRightHalf(listRect, event.clientX)
-      if(leftOrRight === "left"){
-        await putDraggingListToLeftOrRight(db, draggingListId, list, "left")
-        return
-      }else if(leftOrRight === "right"){
-        await putDraggingListToLeftOrRight(db, draggingListId, list, "right")
-        return
-      }
-    }
-  }
 
   return (
     <div

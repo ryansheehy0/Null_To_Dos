@@ -1,4 +1,5 @@
 import { twMerge as tm } from "tailwind-merge"
+import { isMouseLeftOrRightHalf } from "../../utils/rectangleFunctions"
 import { useGlobalContext } from "../../utils/context"
 import { useState, useRef, useEffect } from "react"
 import Trash from "../../assets/trash.svg?react"
@@ -16,6 +17,15 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
   const cards = useLiveQuery(async () => {
     return getCardsFromList(db, id)
   })
+
+  // Resets cardRefs
+  useEffect(() => {
+    const cardRefs = callbackCardRefs()
+    // Remove nulls from cardRefs
+    cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
+    // Remove duplicates from cardRefs
+    cardRefs.current = [...new Set(cardRefs.current)]
+  }, [cards])
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -71,12 +81,62 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
     })
   }
 
+  // dragging
+  function getListRect(list){
+    const listRefs = callbackListRefs()
+    for(const listRef of listRefs.current){
+      if(!listRef) continue
+      if(listRef.dataset.id == list.id){
+        return listRef.getBoundingClientRect()
+      }
+    }
+  }
+
+  async function putDraggingListToLeftOrRight(draggingListId, list, leftOrRight: "left" | "right"){
+    const board = await db.boards.get(globalState.boardId)
+    // Remove the currently dragging list
+    board.lists = board.lists.filter((listId) => {return listId != draggingListId})
+    // Get index of current list
+    const listIndex = board.lists.findIndex((listId) => {
+      return listId === list.id
+    })
+    // Get inserting index
+    const insertingIndex = leftOrRight === "left" ? listIndex : (listIndex + 1)
+    // Insert the currently dragging list
+    board.lists.splice(insertingIndex, 0, draggingListId)
+    // Update the board's lists
+    await db.boards.update(globalState.boardId, {
+      lists: [...board.lists]
+    })
+  }
+
+  async function onListDrag(event){
+    const draggingListId = parseInt(event.target.dataset.id)
+    const board = await db.boards.get(globalState.boardId)
+    for(const listId of board.lists){
+      const list = await db.lists.get(listId)
+      const listRect = getListRect(list)
+      // Exclude the currently dragging list
+      if(draggingListId === list.id) continue
+      // Check if the dragging list is left or right
+      const leftOrRight = isMouseLeftOrRightHalf(listRect, event.clientX)
+      if(leftOrRight === "left"){
+        await putDraggingListToLeftOrRight(draggingListId, list, "left")
+        return
+      }else if(leftOrRight === "right"){
+        await putDraggingListToLeftOrRight(draggingListId, list, "right")
+        return
+      }
+    }
+  }
+
   return (
     <div
       ref={ref}
       data-id={id}
       className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing]  box-border ml-[--cardSpacing]", "bg-lightList dark:bg-darkList", className)}
       draggable="true"
+      onDrag={onListDrag}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
           <textarea className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={textarea} onInput={onTextareaInput} rows={1} spellCheck={false}></textarea>
