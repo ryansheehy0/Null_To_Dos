@@ -21,6 +21,7 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
   // Resets cardRefs
   useEffect(() => {
     const cardRefs = callbackCardRefs()
+    console.log(cardRefs)
     // Remove nulls from cardRefs
     cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
     // Remove duplicates from cardRefs

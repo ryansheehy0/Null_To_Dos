@@ -240,11 +240,11 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         const draggingCardId = parseInt(event.target.dataset.id)
         const clientY = event.clientY
 
-        if(list.cards.length !== 0){
-          await cardDragging(draggingCardId, clientY, list.cards)
-        }else{
+        if((list.cards.length === 0) || (list.cards.length === 1 && list.cards[0] === draggingCardId)){ // What if the last element in the list is the hidden dragging element?
           // Add dragging card into list
           putDraggingCardInside(draggingCardId, list, "list")
+        }else{
+          await cardDragging(draggingCardId, clientY, list.cards)
         }
         break
       }
