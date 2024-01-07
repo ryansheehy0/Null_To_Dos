@@ -6,9 +6,15 @@ export default function AddAnotherBoard(){
   const {db} = useGlobalContext()
 
   async function addNewBoard(){
-    await db.boards.add({
+    // Add new board
+    const newBoardId = await db.boards.add({
       name: "",
       lists: []
+    })
+    // Add new board to boardOrder
+    const miscellaneous = await db.miscellaneous.get(1)
+    await db.miscellaneous.update(1, {
+      boardOrder: [...miscellaneous.boardOrder, newBoardId]
     })
   }
 

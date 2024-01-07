@@ -10,14 +10,27 @@ import NavIcon from "./NavIcon.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import Board from "../Container/Board.js"
 import AddAnotherBoard from "../Container/AddAnotherBoard.js"
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
+import { getBoards } from "../../utils/database.js"
+import { isValidRect } from "../../utils/rectangleFunctions.js"
 
 export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
   const boards = useLiveQuery(async () => {
-    return await db.boards.toArray()
+    return await getBoards(db)
   }, [])
   const uploadFileRef = useRef(null)
+  const boardRefs = useRef([])
+
+  // Resets boardRefs
+  useEffect(() => {
+    // Remove nulls from boardRefs
+    boardRefs.current = boardRefs.current.filter((ref) => {return ref !== null})
+    // Remove invalid refs
+    boardRefs.current = boardRefs.current.filter((ref) => {return isValidRect(ref.getBoundingClientRect())})
+    // Remove duplicates from cardRefs
+    boardRefs.current = [...new Set(boardRefs.current)]
+  }, [boards])
 
   async function selectBoard(event){
     let boardId
@@ -70,7 +83,9 @@ export default function Navbar(){
             {boards ? boards.map((board) => (
               <Board
                 key={board.id} id={board.id}
+                ref={(ref) => boardRefs.current.push(ref)}
                 name={board.name}
+                callbackBoardRefs={() => {return boardRefs}}
                 onClick={selectBoard}
               />
             )): ""}

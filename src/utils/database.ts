@@ -26,6 +26,20 @@ export async function getCardsFromCard(db, cardId){
   return cards
 }
 
+export async function getBoards(db){// Gets the boards in the boardOrder
+  // Get the board order
+  const miscellaneous = await db.miscellaneous.get(1)
+  const boardOrder = miscellaneous.boardOrder
+  // Get the boards according to the board order
+  let boards = []
+  for(const boardId of boardOrder){
+    const board = await db.boards.get(boardId)
+    boards.push(board)
+  }
+
+  return boards
+}
+
 // Deleting
 export async function recursivelyDeleteCard(db, id, parentId, parentType: "list" | "card"){
   // Delete all cards in card

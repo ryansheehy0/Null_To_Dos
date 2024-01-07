@@ -33,13 +33,15 @@ export default function Provider({children}){
 
       // If there isn't a miscellaneous then add one
       const miscellaneous = await db.miscellaneous.get(1)
-      console.log(miscellaneous)
       if(!miscellaneous){
+        const boards = await db.boards.toArray()
+        console.log(boards)
+        const boardIds = boards.map(board => {return board.id})
         await db.miscellaneous.add({
           theme: "dark",
           open: false,
           boardId: 1,
-          boardOrder: [1]
+          boardOrder: boardIds
         })
       }else{
         // Load the globalState
