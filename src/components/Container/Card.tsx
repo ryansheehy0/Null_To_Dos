@@ -19,6 +19,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   }, [globalState.boardId])
   const [hideCard, setHideCard] = useState(false)
   const [startDragEvents, setStartDragEvents] = useState(false)
+  const [spellChecking, setSpellChecking] = useState(false)
 
   // Need to leave comments explaining what the problem is and why hideCard is necessary
 
@@ -292,7 +293,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
       onDragEnd={onDragEnd}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
-          <textarea className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={textarea} onInput={onTextareaInput} rows={1} spellCheck={false}></textarea>
+          <textarea className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
           <div ref={trashParentRef} className="flex items-center justify-end">
             <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} />
             <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />

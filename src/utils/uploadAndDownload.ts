@@ -95,5 +95,5 @@ export async function download(db){
 
   const downloadJson = JSON.stringify(downloadObj, null, 2)
   const blob = new Blob([downloadJson], { type: "application/json"})
-  saveAs(blob, "nullTodos.json")
+  saveAs(blob, "null_todos.json")
 }

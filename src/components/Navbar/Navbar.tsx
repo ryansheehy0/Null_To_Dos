@@ -19,7 +19,7 @@ export default function Navbar(){
   }, [])
   const uploadFileRef = useRef(null)
 
-  function selectBoard(event){
+  async function selectBoard(event){
     let boardId
     if(event.target.tagName === "TEXTAREA"){
       boardId = event.target.parentNode.parentNode.dataset.id
@@ -29,6 +29,9 @@ export default function Navbar(){
     if(boardId){
       const boardIdInt = parseInt(boardId)
       setGlobalState({...globalState, boardId: boardIdInt})
+      await db.miscellaneous.update(1, {
+        boardId: boardIdInt
+      })
     }
   }
 
@@ -36,13 +39,28 @@ export default function Navbar(){
     <div
       className={tm("w-[--cardHeight] h-screen absolute left-0 top-0 bg-lightList dark:bg-darkList z-10",
       globalState.open && "w-fit pr-[--cardSpacing]")}>
-      <NavIcon Icon={List} rightOffset={"right-[--cardSpacing]"} onClick={() => setGlobalState({...globalState, open: !globalState.open})} />
+      <NavIcon Icon={List} rightOffset={"right-[--cardSpacing]"} onClick={async () => {
+        await db.miscellaneous.update(1, {
+          open: !globalState.open
+        })
+        setGlobalState({...globalState, open: !globalState.open})
+      }} />
       {globalState.open ? (
         <>
           {globalState.theme === "dark" ? (
-            <NavIcon Icon={Moon} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={() => setGlobalState({...globalState, theme: "light"})} />
+            <NavIcon Icon={Moon} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
+              setGlobalState({...globalState, theme: "light"})
+              await db.miscellaneous.update(1, {
+                theme: "light"
+              })
+            }} />
           ) : (
-            <NavIcon Icon={Sun} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={() => setGlobalState({...globalState, theme: "dark"})} />
+            <NavIcon Icon={Sun} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
+              setGlobalState({...globalState, theme: "dark"})
+              await db.miscellaneous.update(1, {
+                theme: "dark"
+              })
+            }} />
           )}
           <NavIcon Icon={Upload} rightOffset={"right-[calc(3*var(--cardSpacing)+2*var(--iconSize))]"} onClick={() => {uploadFileRef.current.click()}}/>
           <input type="file" ref={uploadFileRef} className="hidden" accept=".json" onChange={(event) => upload(db, event)}/>

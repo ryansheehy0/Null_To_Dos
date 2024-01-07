@@ -6,16 +6,23 @@ export const useGlobalContext = () => useContext(Context) // Returns the value a
 
 export default function Provider({children}){
   const [loading, setLoading] = useState(true)
+  const [globalState, setGlobalState] = useState({
+    theme: "dark",
+    open: false,
+    boardId: 1
+  })
   // Set up db
   let db = new Dexie("Null_Todos")
   db.version(1).stores({
+    miscellaneous: "++id,theme,open,boardId,boardOrder",
     boards: "++id,name,lists",
     lists: "++id,name,cards",
     cards: "++id,name,cards,parentId,parentType"
   })
 
   useEffect(() => {
-    async function addBoardIfNone(){
+    async function loadApp(){
+      // If there aren't any boards then add one
       const boards = await db.boards.toArray()
       if(boards.length === 0){
         await db.boards.add({
@@ -23,17 +30,31 @@ export default function Provider({children}){
           lists: []
         })
       }
+
+      // If there isn't a miscellaneous then add one
+      const miscellaneous = await db.miscellaneous.get(1)
+      console.log(miscellaneous)
+      if(!miscellaneous){
+        await db.miscellaneous.add({
+          theme: "dark",
+          open: false,
+          boardId: 1,
+          boardOrder: [1]
+        })
+      }else{
+        // Load the globalState
+        setGlobalState({
+          theme: miscellaneous.theme,
+          open: miscellaneous.open,
+          boardId: miscellaneous.boardId
+        })
+      }
+
       setLoading(false)
     }
-    addBoardIfNone()
-  }, [])
 
-  // Set up global state
-  const [globalState, setGlobalState] = useState({
-    theme: "dark",
-    open: false,
-    boardId: 1
-  })
+    loadApp()
+  }, [])
 
   if(loading) return null
 
