@@ -16,7 +16,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   const [deleted, setDeleted] = useState(false)
   const cards = useLiveQuery(async () => {
     return getCardsFromCard(db, id)
-  })
+  }, [globalState.boardId])
   const [hideCard, setHideCard] = useState(false)
   const [startDragEvents, setStartDragEvents] = useState(false)
 

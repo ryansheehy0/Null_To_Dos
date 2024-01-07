@@ -8,6 +8,7 @@ import { recursivelyDeleteList, getCardsFromList } from "../../utils/database"
 import { useLiveQuery } from "dexie-react-hooks"
 import Card from "./Card"
 import React from "react"
+import { isValidRect } from "../../utils/rectangleFunctions"
 
 const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, className, ...props}, ref) => {
   const {db, globalState} = useGlobalContext()
@@ -16,14 +17,15 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
   const [deleted, setDeleted] = useState(false)
   const cards = useLiveQuery(async () => {
     return getCardsFromList(db, id)
-  })
+  }, [globalState.boardId])
 
   // Resets cardRefs
   useEffect(() => {
     const cardRefs = callbackCardRefs()
-    console.log(cardRefs)
     // Remove nulls from cardRefs
-    cardRefs.current = cardRefs.current.filter((refs) => {return refs !== null})
+    cardRefs.current = cardRefs.current.filter((ref) => {return ref !== null})
+    // Remove invalid refs
+    cardRefs.current = cardRefs.current.filter((ref) => {return isValidRect(ref.getBoundingClientRect())})
     // Remove duplicates from cardRefs
     cardRefs.current = [...new Set(cardRefs.current)]
   }, [cards])

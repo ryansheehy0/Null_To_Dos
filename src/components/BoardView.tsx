@@ -5,6 +5,7 @@ import { getLists } from "../utils/database.js"
 import { useEffect, useRef } from "react"
 import List from "./Container/List.js"
 import AddAnotherList from "./Container/AddAnotherList.js"
+import { isValidRect } from "../utils/rectangleFunctions.js"
 
 export default function BoardView(){
   const {db, globalState} = useGlobalContext()
@@ -17,7 +18,9 @@ export default function BoardView(){
   // Resets listRefs
   useEffect(() => {
     // Remove nulls from listRefs
-    listRefs.current = listRefs.current.filter((refs) => {return refs !== null})
+    listRefs.current = listRefs.current.filter((ref) => {return ref !== null})
+    // Remove invalid refs
+    listRefs.current = listRefs.current.filter((ref) => {return isValidRect(ref.getBoundingClientRect())})
     // Remove duplicates from listRefs
     listRefs.current = [...new Set(listRefs.current)]
   }, [lists])
