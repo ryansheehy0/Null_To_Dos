@@ -18,7 +18,7 @@ export default function Navbar(){
   const {db, globalState, setGlobalState} = useGlobalContext()
   const boards = useLiveQuery(async () => {
     return await getBoards(db)
-  }, [])
+  })
   const uploadFileRef = useRef(null)
   const boardRefs = useRef([])
 

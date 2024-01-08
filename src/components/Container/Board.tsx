@@ -92,19 +92,23 @@ const Board = React.forwardRef( ({id, name, callbackBoardRefs, ...props}, ref) =
   async function onBoardDrag(event){
     const draggingBoardId = parseInt(event.target.dataset.id)
     const boards = await getBoards(db)
-    for(const boardId of boards){
-      const board = await db.boards.get(boardId)
+    for(const [i, board] of boards.entries()){
+      //const board = await db.boards.get(boardId)
       const boardRect = getBoardRect(board)
       // Exclude the currently dragging board
       if(draggingBoardId === board.id) continue
+      // When dropping event.clientY is set to 0
+      if(event.clientY === 0) return
       // Check if the dragging board is above or below
       const aboveOrBelow = isMouseAboveOrBelowCenter(boardRect, event.clientY)
       if(aboveOrBelow === "above"){
         await putDraggingBoardToAboveOrBelow(draggingBoardId, board, "above")
         return
       }else if(aboveOrBelow === "below"){
-        await putDraggingBoardToAboveOrBelow(draggingBoardId, board, "below")
-        return
+        if(i === boards.length - 1){
+          await putDraggingBoardToAboveOrBelow(draggingBoardId, board, "below")
+          return
+        }
       }
     }
   }
