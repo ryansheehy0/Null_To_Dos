@@ -134,6 +134,14 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
     }
   }
 
+  /*
+      onTouchMove={(event) => {
+        // Set touch-none
+        // Change the position of the element
+        console.log(event.targetTouches[0].pageX)
+      }}
+    */
+
   return (
     <div
       ref={ref}

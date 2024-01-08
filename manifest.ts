@@ -13,8 +13,8 @@ const manifest = {
     ],
     orientation: "portrait",
     display: "standalone",
-    theme_color: "#FFFFFF",
-    background_color: "#000000"
+    theme_color: "#000000",
+    background_color: "#FFFFFF"
   }
 }
 

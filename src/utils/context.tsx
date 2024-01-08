@@ -35,7 +35,6 @@ export default function Provider({children}){
       const miscellaneous = await db.miscellaneous.get(1)
       if(!miscellaneous){
         const boards = await db.boards.toArray()
-        console.log(boards)
         const boardIds = boards.map(board => {return board.id})
         await db.miscellaneous.add({
           theme: "dark",
