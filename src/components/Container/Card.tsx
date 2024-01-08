@@ -23,6 +23,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   const textareaRef = useRef(null)
 
   // Need to leave comments explaining what the problem is and why hideCard is necessary
+  // Dragging not working
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -44,11 +45,14 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     textarea.style.height = "fit-content"
     textarea.style.height = textarea.scrollHeight + "px"
     // Limit the input to 64 characters
+    /*
     if(textarea.value.length > 64){
       setTextarea(textarea.value.substr(0, 64))
     }else{
       setTextarea(textarea.value)
     }
+    */
+    setTextarea(textarea.value)
     // Save the name change to db
     await db.cards.update(id, {
       name: textarea.value
@@ -302,7 +306,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
       onDragEnd={onDragEnd}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
-          <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
+          <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-base h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
           <div ref={trashParentRef} className="flex items-center justify-end">
             <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} />
             <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />

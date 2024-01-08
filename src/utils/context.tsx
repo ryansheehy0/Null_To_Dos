@@ -26,9 +26,60 @@ export default function Provider({children}){
       const boards = await db.boards.toArray()
       if(boards.length === 0){
         await db.boards.add({
-          name: "",
-          lists: []
+          name: "Board 1",
+          lists: [1, 2, 3]
         })
+
+        /* Id: 1 */await db.lists.add({
+          name: "Todo",
+          cards: [1, 3]
+        })
+        /* Id: 2 */await db.lists.add({
+          name: "Doing",
+          cards: [5]
+        })
+        /* Id: 3 */await db.lists.add({
+          name: "Done",
+          cards: []
+        })
+
+        /* Id: 1 */await db.cards.add({
+          name: "Click the trash icon twice in order to delete components.",
+          cards: [2],
+          parentId: 1,
+          parentType: "list"
+        })
+          /* Id: 2 */await db.cards.add({
+            name: "If you accidentally clicked the trash icon, click anywhere outside in order to reset it.",
+            cards: [],
+            parentId: 1,
+            parentType: "card"
+          })
+        /* Id: 3 */await db.cards.add({
+          name: "You can drag cards, lists, or boards to rearrange them into any order you like.",
+          cards: [4],
+          parentId: 1,
+          parentType: "list"
+        })
+          /* Id: 4 */await db.cards.add({
+            name: "You can even drag cards into other cards.",
+            cards: [],
+            parentId: 3,
+            parentType: "card"
+          })
+
+        /* Id: 5 */await db.cards.add({
+          name: "Task 1",
+          cards: [6],
+          parentId: 2,
+          parentType: "list"
+        })
+          /* Id: 6 */await db.cards.add({
+            name: "Sub task 1",
+            cards: [],
+            parentId: 5,
+            parentType: "card"
+          })
       }
 
       // If there isn't a miscellaneous then add one
