@@ -19,11 +19,16 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   }, [globalState.boardId])
   const [hideCard, setHideCard] = useState(false)
   const [startDragEvents, setStartDragEvents] = useState(false)
+  const [waitDragEvents, setWaitDragEvents] = useState(false)
   const [spellChecking, setSpellChecking] = useState(false)
   const textareaRef = useRef(null)
 
   // Need to leave comments explaining what the problem is and why hideCard is necessary
-  // Dragging not working
+  // Dragging on in and out of a lot of cards
+    // Wait for state to update
+    // Not removing from newDraggingCard's parent properly
+    // Maybe it has to do with scrolling
+    // Maybe it has to do with quick jumps
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -137,10 +142,12 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         cards: [...parent.cards]
       })
       // Set newDraggingCard
-      setNewDraggingCard({
-        ...newDraggingCard,
-        parentId: currentCard.parentId,
-        parentType: currentCard.parentType
+      setNewDraggingCard((newDraggingCard) => {
+        return {
+          ...newDraggingCard,
+          parentId: currentCard.parentId,
+          parentType: currentCard.parentType
+        }
       })
 
       // If the parent of the draggingCard is the same as the parent of the currentCard
@@ -160,6 +167,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
       // Get dragging card
       const draggingCard = await db.cards.get(draggingCardId)
 
+      console.log(newDraggingCard.parentId, newDraggingCard.parentType)
       // If the parent of the newDraggingCard isn't the same as the draggingCard
       if(!(newDraggingCard.parentId === draggingCard.parentId && newDraggingCard.parentType === draggingCard.parentType)){
         // Remove the newDraggingCard from its parent
@@ -179,11 +187,14 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
         cards: [...item.cards]
       })
       // set newDraggingCard
-      setNewDraggingCard({
-        ...newDraggingCard,
-        parentId: item.id,
-        parentType: cardOrList
+      setNewDraggingCard((newDraggingCard) => {
+        return {
+          ...newDraggingCard,
+          parentId: item.id,
+          parentType: cardOrList
+        }
       })
+      console.log("after", newDraggingCard.parentId, newDraggingCard.parentType)
       // If the item is the parent of the draggingCard
       if((item.id === draggingCard.parentId) && (draggingCard.parentType == cardOrList)){
         // Un-hide
@@ -236,9 +247,10 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   async function onCardDrag(event){
     event.stopPropagation()
     if(event.clientX === 0 && event.clientY === 0) return
-    if(!startDragEvents) return
+    if(!startDragEvents || waitDragEvents) return
 
     setStartDragEvents(false) // Used to prevent other drag events running while a previous await drag event is running
+    setWaitDragEvents(true)
 
     try{
       const board = await db.boards.get(globalState.boardId)
@@ -253,7 +265,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
 
         if((list.cards.length === 0) || (list.cards.length === 1 && list.cards[0] === draggingCardId)){ // What if the last element in the list is the hidden dragging element?
           // Add dragging card into list
-          putDraggingCardInside(draggingCardId, list, "list")
+          await putDraggingCardInside(draggingCardId, list, "list")
         }else{
           await cardDragging(draggingCardId, clientY, list.cards)
         }
@@ -262,6 +274,10 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     }catch(error){console.error(error)}
 
     setStartDragEvents(true)
+    // Delay drag events
+    setTimeout(() => {
+      setWaitDragEvents(false)
+    }, 300)
   }
 
   function onDragStart(){
@@ -310,19 +326,21 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
           </div>
           {/* List all the cards */}
           {cards ? cards.map((card) => (
-            <Card
-              key={card.id} id={card.id}
-              name={card.name}
-              parentId={card.parentId} parentType={card.parentType}
-              ref={(ref) => {
-                const cardRefs = callbackCardRefs()
-                cardRefs.current.push(ref)}
-              }
-              callbackCardRefs={callbackCardRefs}
-              callbackListRefs={callbackListRefs}
-              className="flex-shrink-0 col-span-2"
-            />
-          )): ""}
+            card ? (
+              <Card
+                key={card.id} id={card.id}
+                name={card.name}
+                parentId={card.parentId} parentType={card.parentType}
+                ref={(ref) => {
+                  const cardRefs = callbackCardRefs()
+                  cardRefs.current.push(ref)
+                }}
+                callbackCardRefs={callbackCardRefs}
+                callbackListRefs={callbackListRefs}
+                className="flex-shrink-0 col-span-2"
+              />
+            ) : null
+          )) : null}
         </div>
     </div>
   )

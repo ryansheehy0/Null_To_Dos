@@ -56,10 +56,12 @@ export async function recursivelyDeleteCard(db, id, parentId, parentType: "list"
     })
   }else if(parentType === "card"){
     const card = await db.cards.get(parentId)
-    card.cards = card.cards.filter((cardId) => {return cardId !== id})
-    await db.cards.update(parentId, {
-      cards: [...card.cards]
-    })
+    if(card){
+      card.cards = card.cards.filter((cardId) => {return cardId !== id})
+      await db.cards.update(parentId, {
+        cards: [...card.cards]
+      })
+    }
   }
   // Delete self(card)
   await db.cards.delete(id)

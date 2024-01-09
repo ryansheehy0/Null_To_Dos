@@ -31,15 +31,17 @@ export default function BoardView(){
       globalState.open && "w-[calc(100vw-(var(--cardWidth)+(2*var(--cardSpacing))))]")}>
       {/* Display all the lists in the board */}
       {lists ? lists.map((list) => (
-        <List
-          key={list.id} id={list.id}
-          name={list.name}
-          ref={(ref) => listRefs.current.push(ref)}
-          callbackCardRefs={() => {return cardRefs}}
-          callbackListRefs={() => {return listRefs}}
-          className="flex-shrink-0"
-        />
-      )): ""}
+        list ? (
+          <List
+            key={list.id} id={list.id}
+            name={list.name}
+            ref={(ref) => listRefs.current.push(ref)}
+            callbackCardRefs={() => {return cardRefs}}
+            callbackListRefs={() => {return listRefs}}
+            className="flex-shrink-0"
+          />
+        ) : null
+      )): null}
       {/* Add new list button */}
       <AddAnotherList />
     </div>

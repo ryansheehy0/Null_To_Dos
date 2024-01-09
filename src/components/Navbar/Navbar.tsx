@@ -81,14 +81,16 @@ export default function Navbar(){
           <div className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
             {/* Display all the boards */}
             {boards ? boards.map((board) => (
-              <Board
-                key={board.id} id={board.id}
-                ref={(ref) => boardRefs.current.push(ref)}
-                name={board.name}
-                callbackBoardRefs={() => {return boardRefs}}
-                onClick={selectBoard}
-              />
-            )): ""}
+              board ? (
+                <Board
+                  key={board.id} id={board.id}
+                  ref={(ref) => boardRefs.current.push(ref)}
+                  name={board.name}
+                  callbackBoardRefs={() => {return boardRefs}}
+                  onClick={selectBoard}
+                />
+              ) : null
+            )): null}
             {/* Add new board button */}
             <AddAnotherBoard />
           </div>
