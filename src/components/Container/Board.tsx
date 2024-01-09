@@ -34,14 +34,6 @@ const Board = React.forwardRef( ({id, name, callbackBoardRefs, ...props}, ref) =
     const textarea = event.target
     textarea.style.height = "fit-content"
     textarea.style.height = textarea.scrollHeight + "px"
-    // Limit the input to 64 characters
-    /*
-    if(textarea.value.length > 64){
-      setTextarea(textarea.value.substr(0, 64))
-    }else{
-      setTextarea(textarea.value)
-    }
-    */
     setTextarea(textarea.value)
     // Save the name change to db
     await db.boards.update(id, {
