@@ -234,6 +234,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   }
 
   async function onCardDrag(event){
+    if(event.clientX === 0 && event.clientY === 0) return
     event.stopPropagation()
     if(!startDragEvents) return
 
