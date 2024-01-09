@@ -125,6 +125,7 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
       const listRect = getListRect(list)
       // Exclude the currently dragging list
       if(draggingListId === list.id) continue
+      if(event.clientX === 0) return
       // Check if the dragging list is left or right
       const leftOrRight = isMouseLeftOrRightHalf(listRect, event.clientX)
       if(leftOrRight === "left"){
