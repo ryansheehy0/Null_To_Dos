@@ -234,8 +234,8 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   }
 
   async function onCardDrag(event){
-    if(event.clientX === 0 && event.clientY === 0) return
     event.stopPropagation()
+    if(event.clientX === 0 && event.clientY === 0) return
     if(!startDragEvents) return
 
     setStartDragEvents(false) // Used to prevent other drag events running while a previous await drag event is running
