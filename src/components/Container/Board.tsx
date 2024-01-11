@@ -125,7 +125,7 @@ const Board = React.forwardRef( ({id, name, callbackBoardRefs, ...props}, ref) =
       onDrag={onBoardDrag}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
-          <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
+          <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto overflow-hidden" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
           <div ref={trashParentRef} className="flex items-center justify-end">
             {globalState.boardId === id ? (
               "" ) : (
