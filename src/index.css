@@ -4,7 +4,7 @@
 
 :root {
   --cardHeight: 2.6rem;
-  --cardWidth: 14rem;
+  --cardWidth: 14.5rem;
   --cardSpacing: 0.5rem;
   --iconSize: calc( var(--cardHeight) - (2 * var(--cardSpacing)) );
 

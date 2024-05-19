@@ -137,7 +137,7 @@ const Board = React.forwardRef( ({id, name, callbackBoardRefs, ...props}, ref) =
     <div
       ref={ref}
       data-id={id}
-      className={tm("rounded-xl py-1.5 px-1.5 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit mt-[--cardSpacing] box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-transparent")}
+      className={tm("rounded-xl py-1.5 px-1.5 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit mt-[--cardSpacing] box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard")}
       draggable="true"
       onDrag={onBoardDrag}
       {...props}>

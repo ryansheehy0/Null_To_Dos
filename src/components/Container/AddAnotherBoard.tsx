@@ -37,7 +37,7 @@ export default function AddAnotherBoard(){
 
   return (
     <div
-      className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing] box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkBackground", "cursor-pointer")}
+      className={tm("rounded-xl py-1.5 px-3 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit my-[--cardSpacing] box-border ml-[--cardSpacing]", "bg-lightCard dark:bg-darkCard", "cursor-pointer")}
       draggable="false"
       onClick={addNewBoard}>
         <div className="flex items-center justify-center text-lightText dark:text-darkText h-4 rounded-xl box-content">

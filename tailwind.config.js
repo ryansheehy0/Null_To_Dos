@@ -9,19 +9,15 @@ export default {
     extend: {
       colors: {
         darkText: "#fff",
-        lightText: "#fff",
+        lightText: "#000",
 
-        darkBackground: "linear-gradient(135deg, #0707e8, #ed6dfd);",
-        lightBackground: "#fff",
+        darkList: "#090601",
+        lightList: "#f6f9fe",
 
-        darkList: "#0f0a01",
-        lightList: "#afafaf",
-
-        darkCard: "#292e32",
-        lightCard: "#878787",
+        darkCard: "#545e63",
+        lightCard: "#c5c8ca",
       },
     },
   },
   plugins: [],
 }
-

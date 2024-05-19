@@ -78,17 +78,17 @@ export default function Navbar(){
       {globalState.open ? (
         <>
           {globalState.theme === "dark" ? (
-            <NavIcon Icon={Moon} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
+            <NavIcon Icon={Sun} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
               setGlobalState({...globalState, theme: "light"})
               await db.miscellaneous.update(1, {
-                theme: "light"
+                theme: "dark"
               })
             }} />
           ) : (
-            <NavIcon Icon={Sun} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
+            <NavIcon Icon={Moon} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
               setGlobalState({...globalState, theme: "dark"})
               await db.miscellaneous.update(1, {
-                theme: "dark"
+                theme: "light"
               })
             }} />
           )}
