@@ -329,7 +329,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     <div
       ref={ref}
       data-id={id}
-      className={tm("rounded-xl pt-1.5 px-1.5 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit mt-[--cardSpacing]  box-border mx-[calc(var(--cardSpacing)/2)]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkBackground", className, hideCard && "hidden", cards?.length !== 0 ? "pb-[calc(var(--cardSpacing)*1.5)]" : "pb-1.5")}
+      className={tm("rounded-xl pt-1.5 px-1.5 min-w-[--cardWidth] w-min flex justify-center items-center min-h-[--cardHeight] h-fit mt-[--cardSpacing] box-border mx-[calc(var(--cardSpacing)/2)]", "bg-lightCard dark:bg-darkCard border border-solid border-lightBackground dark:border-darkList", className, hideCard && "hidden", cards?.length !== 0 ? "pb-[calc(var(--cardSpacing)*1.5)]" : "pb-1.5")}
       draggable="true"
       onDragStart={onDragStart}
       onDrag={onCardDrag}
