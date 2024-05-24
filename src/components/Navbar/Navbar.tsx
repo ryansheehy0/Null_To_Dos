@@ -32,10 +32,10 @@ import { getBoards } from "../../utils/database.js"
 import { isValidRect } from "../../utils/rectangleFunctions.js"
 
 export default function Navbar(){
-  const {db, globalState, setGlobalState} = useGlobalContext()
-  const boards = useLiveQuery(async () => {
-    return await getBoards(db)
-  })
+  const {db} = useGlobalContext()
+  const boards = useLiveQuery(async () => await getBoards(db))
+  const open = useLiveQuery(async () => (await db.miscellaneous.get(1)).open)
+  const theme = useLiveQuery(async () => (await db.miscellaneous.get(1)).theme)
   const uploadFileRef = useRef(null)
   const boardRefs = useRef([])
 
@@ -50,12 +50,10 @@ export default function Navbar(){
   }, [boards])
 
   async function selectBoard(event){
-    let boardId = event.target.dataset.id
+    const boardId = event.target.dataset.id
     if(boardId){
-      const boardIdInt = parseInt(boardId)
-      //setGlobalState({...globalState, boardId: boardIdInt})
       await db.miscellaneous.update(1, {
-        boardId: boardIdInt
+        boardId: parseInt(boardId)
       })
     }
   }
@@ -63,25 +61,22 @@ export default function Navbar(){
   return (
     <div
       className={tm("w-[--cardHeight] h-screen absolute left-0 top-0 bg-lightList dark:bg-darkList z-10",
-      globalState.open && "w-fit pr-[--cardSpacing]")}>
+      open && "w-fit pr-[--cardSpacing]")}>
       <NavIcon Icon={List} rightOffset={"right-[--cardSpacing]"} onClick={async () => {
         await db.miscellaneous.update(1, {
-          open: !globalState.open
+          open: !open
         })
-        setGlobalState({...globalState, open: !globalState.open})
       }} />
-      {globalState.open ? (
+      {open ? (
         <>
-          {globalState.theme === "dark" ? (
+          {theme === "dark" ? (
             <NavIcon Icon={Sun} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
-              setGlobalState({...globalState, theme: "light"})
               await db.miscellaneous.update(1, {
                 theme: "light"
               })
             }} />
           ) : (
             <NavIcon Icon={Moon} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
-              setGlobalState({...globalState, theme: "dark"})
               await db.miscellaneous.update(1, {
                 theme: "dark"
               })
@@ -90,7 +85,7 @@ export default function Navbar(){
           <NavIcon Icon={Upload} rightOffset={"right-[calc(3*var(--cardSpacing)+2*var(--iconSize))]"} onClick={() => {uploadFileRef.current.click()}}/>
           <input type="file" ref={uploadFileRef} className="hidden" accept=".json" onChange={(event) => upload(db, event)}/>
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} onClick={() => download(db)}/>
-          <div className={tm("mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar")}>
+          <div className="mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar">
             {/* Display all the boards */}
             {boards ? boards.map((board) => (
               board ? (

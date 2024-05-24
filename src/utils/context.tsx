@@ -17,25 +17,22 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import Dexie from "dexie"
+import { useLiveQuery } from "dexie-react-hooks"
 
 const Context = createContext()
 export const useGlobalContext = () => useContext(Context) // Returns the value attribute in the provider
 
 export default function Provider({children}){
   const [loading, setLoading] = useState(true)
-  const [globalState, setGlobalState] = useState({
-    theme: "dark",
-    open: false,
-    boardId: 1
-  })
   // Set up db
-  let db = new Dexie("Null_Todos")
+  const db = new Dexie("Null_Todos")
   db.version(1).stores({
     miscellaneous: "++id,theme,open,boardId,boardOrder",
     boards: "++id,name,lists",
     lists: "++id,name,cards",
     cards: "++id,name,cards,parentId,parentType"
   })
+  const theme = useLiveQuery(async () => (await db.miscellaneous.get(1)).theme)
 
   useEffect(() => {
     async function loadApp(){
@@ -110,13 +107,6 @@ export default function Provider({children}){
           boardId: 1,
           boardOrder: boardIds
         })
-      }else{
-        // Load the globalState
-        setGlobalState({
-          theme: miscellaneous.theme,
-          open: miscellaneous.open,
-          boardId: miscellaneous.boardId
-        })
       }
 
       setLoading(false)
@@ -125,11 +115,12 @@ export default function Provider({children}){
     loadApp()
   }, [])
 
+
   if(loading) return null
 
   return (
-    <Context.Provider value={{db, globalState, setGlobalState}} >
-        <div className={globalState.theme === "dark" ? "dark" : ""}>
+    <Context.Provider value={{db}} >
+        <div className={theme === "dark" ? "dark" : ""}>
           {children}
         </div>
     </Context.Provider>

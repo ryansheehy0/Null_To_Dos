@@ -27,13 +27,14 @@ import { isMouseHorizontallyInside, isMouseAboveInsideOrBelow, isValidRect } fro
 import transact from "../../utils/transaction"
 
 const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs, callbackListRefs, className, ...props}, ref) => {
-  const {db, globalState} = useGlobalContext()
+  const {db} = useGlobalContext()
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
   const [deleted, setDeleted] = useState(false)
   const cards = useLiveQuery(async () => {
     return getCardsFromCard(db, id)
-  }, [globalState.boardId])
+  }, [])
+  const boardId = useLiveQuery(async () => (await db.miscellaneous.get(1)).boardId)
   const [hideCard, setHideCard] = useState(false)
   const [startDragEvents, setStartDragEvents] = useState(false)
   const [waitDragEvents, setWaitDragEvents] = useState(false)
@@ -183,8 +184,6 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     await transact(db, async () => {
       // Get dragging card
       const draggingCard = await db.cards.get(draggingCardId)
-
-      console.log(newDraggingCard.parentId, newDraggingCard.parentType)
       // If the parent of the newDraggingCard isn't the same as the draggingCard
       if(!(newDraggingCard.parentId === draggingCard.parentId && newDraggingCard.parentType === draggingCard.parentType)){
         // Remove the newDraggingCard from its parent
@@ -211,7 +210,6 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
           parentType: cardOrList
         }
       })
-      console.log("after", newDraggingCard.parentId, newDraggingCard.parentType)
       // If the item is the parent of the draggingCard
       if((item.id === draggingCard.parentId) && (draggingCard.parentType == cardOrList)){
         // Un-hide
@@ -270,7 +268,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     setWaitDragEvents(true)
 
     try{
-      const board = await db.boards.get(globalState.boardId)
+      const board = await db.boards.get(boardId)
       for(const listId of board.lists){
         const list = await db.lists.get(listId)
         const listRect = getListRect(list)

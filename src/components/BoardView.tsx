@@ -25,16 +25,12 @@ import AddAnotherList from "./Container/AddAnotherList.js"
 import { isValidRect } from "../utils/rectangleFunctions.js"
 
 export default function BoardView(){
-  const {db, globalState} = useGlobalContext()
-  /*
+  const {db} = useGlobalContext()
   const lists = useLiveQuery(async () => {
-    return await getLists(db, globalState.boardId)
-  }, [globalState.boardId])
-  */
-  const lists = useLiveQuery(async () => {
-    let { boardId } = await db.miscellaneous.get(1)
+    const { boardId } = await db.miscellaneous.get(1)
     return await getLists(db, boardId)
   }, [])
+  const open = useLiveQuery(async () => (await db.miscellaneous.get(1)).open)
 
   const listRefs = useRef([])
   const cardRefs = useRef([])
@@ -52,7 +48,7 @@ export default function BoardView(){
   return (
     <div
       className={tm("w-[calc(100vw-var(--cardHeight))] overflow-auto h-screen bg-gradient-to-br from-blue-600 to-fuchsia-500 absolute top-0 right-0 flex justify-start",
-      globalState.open && "w-[calc(100vw-(var(--cardWidth)+(2*var(--cardSpacing))))]")}>
+      open && "w-[calc(100vw-(var(--cardWidth)+(2*var(--cardSpacing))))]")}>
       {/* Display all the lists in the board */}
       {lists ? lists.map((list) => (
         list ? (

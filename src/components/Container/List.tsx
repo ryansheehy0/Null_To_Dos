@@ -28,13 +28,14 @@ import React from "react"
 import { isValidRect } from "../../utils/rectangleFunctions"
 
 const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, className, ...props}, ref) => {
-  const {db, globalState} = useGlobalContext()
+  const {db} = useGlobalContext()
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
   const [deleted, setDeleted] = useState(false)
   const cards = useLiveQuery(async () => {
     return getCardsFromList(db, id)
-  }, [globalState.boardId])
+  }, [])
+  const boardId = useLiveQuery(async () => (await db.miscellaneous.get(1)).boardId)
   const [spellChecking, setSpellChecking] = useState(false)
   const textareaRef = useRef(null)
 
@@ -86,7 +87,7 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
     if(!deleted){
       setDeleted(true)
     }else{
-      await recursivelyDeleteList(db, id, globalState.boardId)
+      await recursivelyDeleteList(db, id, boardId)
     }
   }
 
@@ -117,7 +118,7 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
   }
 
   async function putDraggingListToLeftOrRight(draggingListId, list, leftOrRight: "left" | "right"){
-    const board = await db.boards.get(globalState.boardId)
+    const board = await db.boards.get(boardId)
     // Remove the currently dragging list
     board.lists = board.lists.filter((listId) => {return listId != draggingListId})
     // Get index of current list
@@ -129,14 +130,14 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
     // Insert the currently dragging list
     board.lists.splice(insertingIndex, 0, draggingListId)
     // Update the board's lists
-    await db.boards.update(globalState.boardId, {
+    await db.boards.update(boardId, {
       lists: [...board.lists]
     })
   }
 
   async function onListDrag(event){
     const draggingListId = parseInt(event.target.dataset.id)
-    const board = await db.boards.get(globalState.boardId)
+    const board = await db.boards.get(boardId)
     for(const listId of board.lists){
       const list = await db.lists.get(listId)
       const listRect = getListRect(list)

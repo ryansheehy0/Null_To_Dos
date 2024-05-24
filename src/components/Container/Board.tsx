@@ -23,14 +23,16 @@ import { recursivelyDeleteBoard } from "../../utils/database"
 import React from "react"
 import { getBoards } from "../../utils/database"
 import { isMouseAboveOrBelowCenter } from "../../utils/rectangleFunctions"
+import { useLiveQuery } from "dexie-react-hooks"
 
 const Board = React.forwardRef( ({id, name, callbackBoardRefs, ...props}, ref) => {
-  const {db, globalState} = useGlobalContext()
+  const {db} = useGlobalContext()
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
   const [deleted, setDeleted] = useState(false)
   const [spellChecking, setSpellChecking] = useState(false)
   const textareaRef = useRef(null)
+  const boardId = useLiveQuery(async () => (await db.miscellaneous.get(1)).boardId)
 
   // Remove deleted on click outside
   useEffect(() => {
@@ -145,7 +147,7 @@ const Board = React.forwardRef( ({id, name, callbackBoardRefs, ...props}, ref) =
         <div className="grid grid-cols-[auto_auto]" data-id={id}>
           <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto overflow-hidden" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking} data-id={id}></textarea>
           <div ref={trashParentRef} data-id={id} className="flex items-center justify-end">
-            <Trash data-id={id} className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600", globalState.boardId === id && "hidden")} onClick={deleteSelf} />
+            <Trash data-id={id} className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600", boardId === id && "hidden")} onClick={deleteSelf} />
           </div>
         </div>
     </div>
