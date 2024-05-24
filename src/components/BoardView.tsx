@@ -26,9 +26,16 @@ import { isValidRect } from "../utils/rectangleFunctions.js"
 
 export default function BoardView(){
   const {db, globalState} = useGlobalContext()
+  /*
   const lists = useLiveQuery(async () => {
     return await getLists(db, globalState.boardId)
   }, [globalState.boardId])
+  */
+  const lists = useLiveQuery(async () => {
+    let { boardId } = await db.miscellaneous.get(1)
+    return await getLists(db, boardId)
+  }, [])
+
   const listRefs = useRef([])
   const cardRefs = useRef([])
 

@@ -45,20 +45,15 @@ export default function Navbar(){
     boardRefs.current = boardRefs.current.filter((ref) => {return ref !== null})
     // Remove invalid refs
     boardRefs.current = boardRefs.current.filter((ref) => {return isValidRect(ref.getBoundingClientRect())})
-    // Remove duplicates from cardRefs
+    // Remove duplicates
     boardRefs.current = [...new Set(boardRefs.current)]
   }, [boards])
 
   async function selectBoard(event){
-    let boardId
-    if(event.target.tagName === "TEXTAREA"){
-      boardId = event.target.parentNode.parentNode.dataset.id
-    }else{
-      boardId = event.target.dataset.id
-    }
+    let boardId = event.target.dataset.id
     if(boardId){
       const boardIdInt = parseInt(boardId)
-      setGlobalState({...globalState, boardId: boardIdInt})
+      //setGlobalState({...globalState, boardId: boardIdInt})
       await db.miscellaneous.update(1, {
         boardId: boardIdInt
       })
@@ -81,14 +76,14 @@ export default function Navbar(){
             <NavIcon Icon={Sun} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
               setGlobalState({...globalState, theme: "light"})
               await db.miscellaneous.update(1, {
-                theme: "dark"
+                theme: "light"
               })
             }} />
           ) : (
             <NavIcon Icon={Moon} rightOffset={"right-[calc(2*var(--cardSpacing)+var(--iconSize))]"} onClick={async () => {
               setGlobalState({...globalState, theme: "dark"})
               await db.miscellaneous.update(1, {
-                theme: "light"
+                theme: "dark"
               })
             }} />
           )}

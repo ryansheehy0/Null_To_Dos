@@ -12,10 +12,10 @@ export default {
         lightText: "#000",
 
         darkList: "#090601",
-        lightList: "#f6f9fe",
+        lightList: "#cdcdcd",
 
-        darkCard: "#545e63",
-        lightCard: "#c5c8ca",
+        darkCard: "#505050",
+        lightCard: "#f6f9fe",
       },
     },
   },
