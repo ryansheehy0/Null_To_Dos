@@ -72,6 +72,7 @@ export async function upload(db, event){
     const uploadedJson = await readFile(uploadedFile)
     // Convert json to obj
     const uploadedObj = JSON.parse(uploadedJson)
+    console.log(uploadedObj)
     // Validate input file is correct
     if(!isObjUploadedObj(uploadedObj)) return
     // Set db with values from the object
@@ -104,10 +105,12 @@ export async function download(db){
   const boards = await db.boards.toArray()
   const lists = await db.lists.toArray()
   const cards = await db.cards.toArray()
+  const miscellaneous = await db.miscellaneous.toArray()
   const downloadObj = {
     boards,
     lists,
-    cards
+    cards,
+    miscellaneous
   }
 
   const downloadJson = JSON.stringify(downloadObj, null, 2)
