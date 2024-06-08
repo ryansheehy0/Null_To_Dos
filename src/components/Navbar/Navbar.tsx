@@ -27,7 +27,7 @@ import NavIcon from "./NavIcon.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import Board from "../Container/Board.js"
 import AddAnotherBoard from "../Container/AddAnotherBoard.js"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { getBoards } from "../../utils/database.js"
 import { isValidRect } from "../../utils/rectangleFunctions.js"
 
@@ -38,6 +38,7 @@ export default function Navbar(){
   const theme = useLiveQuery(async () => (await db.miscellaneous.get(1)).theme)
   const uploadFileRef = useRef(null)
   const boardRefs = useRef([])
+  const [focusBoard, setFocusBoard] = useState(false)
 
   // Resets boardRefs
   useEffect(() => {
@@ -87,7 +88,7 @@ export default function Navbar(){
           <NavIcon Icon={Download} rightOffset={"right-[calc(4*var(--cardSpacing)+3*var(--iconSize))]"} onClick={() => download(db)}/>
           <div className="mt-[calc(var(--iconSize)+2*var(--cardSpacing))] h-[calc(100vh-(var(--iconSize)+2*var(--cardSpacing)))] overflow-y-auto remove-scrollbar">
             {/* Display all the boards */}
-            {boards ? boards.map((board) => (
+            {boards ? boards.map((board, index) => (
               board ? (
                 <Board
                   key={board.id} id={board.id}
@@ -95,11 +96,12 @@ export default function Navbar(){
                   name={board.name}
                   callbackBoardRefs={() => {return boardRefs}}
                   onClick={selectBoard}
+                  focus={(index === boards.length - 1 && focusBoard) ? true : false}
                 />
               ) : null
             )): null}
             {/* Add new board button */}
-            <AddAnotherBoard />
+            <AddAnotherBoard setFocusBoard={setFocusBoard}/>
           </div>
         </>
       ): "" }

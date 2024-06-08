@@ -57,11 +57,22 @@ function isObjCard(obj){
   )
 }
 
+function isObjMiscellaneous(obj){
+  return (
+    "theme" in obj && typeof obj.theme === "string" &&
+    "open" in obj && typeof obj.open === "boolean" &&
+    "boardId" in obj && typeof obj.boardId === "number" &&
+    "boardOrder" in obj && Array.isArray(obj.boardOrder) && obj.boardOrder.every(board => typeof board === "number") &&
+    "id" in obj && typeof obj.id === "number"
+  )
+}
+
 function isObjUploadedObj(obj){
   return (
     "boards" in obj && Array.isArray(obj.boards) && obj.boards.every(board => isObjBoard(board)) &&
     "lists" in obj && Array.isArray(obj.lists) && obj.lists.every(list => isObjList(list)) &&
-    "cards" in obj && Array.isArray(obj.cards) && obj.cards.every(card => isObjCard(card))
+    "cards" in obj && Array.isArray(obj.cards) && obj.cards.every(card => isObjCard(card)) &&
+    "miscellaneous" in obj && Array.isArray(obj.miscellaneous) && isObjMiscellaneous(obj.miscellaneous[0])
   )
 }
 

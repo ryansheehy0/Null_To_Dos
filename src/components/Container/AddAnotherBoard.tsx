@@ -18,7 +18,7 @@
 import Plus from "../../assets/plus.svg?react"
 import { useGlobalContext } from "../../utils/context"
 
-export default function AddAnotherBoard(){
+export default function AddAnotherBoard({setFocusBoard}){
   const {db} = useGlobalContext()
 
   async function addNewBoard(){
@@ -32,6 +32,8 @@ export default function AddAnotherBoard(){
     await db.miscellaneous.update(1, {
       boardOrder: [...miscellaneous.boardOrder, newBoardId]
     })
+
+    setFocusBoard(true)
   }
 
   return (
