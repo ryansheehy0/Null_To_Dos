@@ -19,7 +19,7 @@ import Plus from "../../assets/plus.svg?react"
 import { useGlobalContext } from "../../utils/context"
 import { useLiveQuery } from "dexie-react-hooks"
 
-export default function AddAnotherList(){
+export default function AddAnotherList({setFocusList}){
   const {db} = useGlobalContext()
   const boardId = useLiveQuery(async () => (await db.miscellaneous.get(1)).boardId)
 
@@ -34,6 +34,8 @@ export default function AddAnotherList(){
     await db.boards.update(boardId, {
       lists: [...board.lists, newListId]
     })
+
+    setFocusList(true)
   }
 
   return (

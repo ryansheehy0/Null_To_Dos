@@ -26,7 +26,7 @@ import React from "react"
 import { isMouseHorizontallyInside, isMouseAboveInsideOrBelow, isValidRect } from "../../utils/rectangleFunctions"
 import transact from "../../utils/transaction"
 
-const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs, callbackListRefs, className, ...props}, ref) => {
+const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs, callbackListRefs, className, focus, ...props}, ref) => {
   const {db} = useGlobalContext()
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
@@ -40,6 +40,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
   const [waitDragEvents, setWaitDragEvents] = useState(false)
   const [spellChecking, setSpellChecking] = useState(false)
   const textareaRef = useRef(null)
+  const [focusCard, setFocusCard] = useState(false)
 
   // Need to leave comments explaining what the problem is and why hideCard is necessary
   // Dragging on in and out of a lot of cards
@@ -107,6 +108,8 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
     await db.cards.update(id, {
       cards: [...card.cards, newCardId]
     })
+
+    setFocusCard(true)
   }
 
   // Dragging functions
@@ -334,13 +337,13 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
       onDragEnd={onDragEnd}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
-          <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto overflow-hidden" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
+          <textarea ref={textareaRef} className="m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto overflow-hidden" value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking} autoFocus={focus}></textarea>
           <div ref={trashParentRef} className="flex items-center justify-end">
             <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} />
             <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />
           </div>
           {/* List all the cards */}
-          {cards ? cards.map((card) => (
+          {cards ? cards.map((card, index) => (
             card ? (
               <Card
                 key={card.id} id={card.id}
@@ -353,6 +356,7 @@ const Card = React.forwardRef(({id, name, parentId, parentType, callbackCardRefs
                 callbackCardRefs={callbackCardRefs}
                 callbackListRefs={callbackListRefs}
                 className="flex-shrink-0 col-span-2"
+                focus={(index === cards.length - 1 && focusCard) ? true : false}
               />
             ) : null
           )) : null}

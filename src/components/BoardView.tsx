@@ -19,7 +19,7 @@ import { twMerge as tm } from "tailwind-merge"
 import { useGlobalContext } from "../utils/context.js"
 import { useLiveQuery } from "dexie-react-hooks"
 import { getLists } from "../utils/database.js"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import List from "./Container/List.js"
 import AddAnotherList from "./Container/AddAnotherList.js"
 import { isValidRect } from "../utils/rectangleFunctions.js"
@@ -34,6 +34,7 @@ export default function BoardView(){
 
   const listRefs = useRef([])
   const cardRefs = useRef([])
+  const [focusList, setFocusList] = useState(false)
 
   // Resets listRefs
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function BoardView(){
       className={tm("w-[calc(100vw-var(--cardHeight))] overflow-auto h-screen bg-gradient-to-br from-blue-600 to-fuchsia-500 absolute top-0 right-0 flex justify-start",
       open && "w-[calc(100vw-(var(--cardWidth)+(2*var(--cardSpacing))))]")}>
       {/* Display all the lists in the board */}
-      {lists ? lists.map((list) => (
+      {lists ? lists.map((list, index) => (
         list ? (
           <List
             key={list.id} id={list.id}
@@ -59,11 +60,12 @@ export default function BoardView(){
             callbackCardRefs={() => {return cardRefs}}
             callbackListRefs={() => {return listRefs}}
             className="flex-shrink-0"
+            focus={(index === lists.length - 1 && focusList) ? true : false}
           />
         ) : null
       )): null}
       {/* Add new list button */}
-      <AddAnotherList />
+      <AddAnotherList setFocusList={setFocusList}/>
     </div>
   )
 }

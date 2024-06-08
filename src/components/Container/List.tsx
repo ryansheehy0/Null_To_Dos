@@ -27,7 +27,7 @@ import Card from "./Card"
 import React from "react"
 import { isValidRect } from "../../utils/rectangleFunctions"
 
-const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, className, ...props}, ref) => {
+const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, className, focus, ...props}, ref) => {
   const {db} = useGlobalContext()
   const [textarea, setTextarea] = useState(name)
   const trashParentRef = useRef(null)
@@ -38,6 +38,7 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
   const boardId = useLiveQuery(async () => (await db.miscellaneous.get(1)).boardId)
   const [spellChecking, setSpellChecking] = useState(false)
   const textareaRef = useRef(null)
+  const [focusCard, setFocusCard] = useState(false)
 
   // Resets cardRefs
   useEffect(() => {
@@ -104,6 +105,8 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
     await db.lists.update(id, {
       cards: [...list.cards, newCardId]
     })
+
+    setFocusCard(true)
   }
 
   // dragging
@@ -165,13 +168,13 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
       onDrag={onListDrag}
       {...props}>
         <div className="grid grid-cols-[auto_auto]">
-          <textarea ref={textareaRef} className={tm("m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto overflow-hidden")} value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking}></textarea>
+          <textarea ref={textareaRef} className={tm("m-0 flex items-center border-none bg-transparent text-lightText dark:text-darkText text-sm h-auto resize-none mt-auto mb-auto pl-1 focus:rounded focus:outline focus:outline-1 focus:dark:outline-darkBackground focus:outline-lightBackground hyphens-auto overflow-hidden")} value={textarea} onInput={onTextareaInput} rows={1} onFocus={() => {setSpellChecking(true)}} onBlur={() => {setSpellChecking(false)}} spellCheck={spellChecking} autoFocus={focus}></textarea>
           <div ref={trashParentRef} className="flex items-center justify-end">
             <Plus className="cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText" onClick={addNewCard} />
             <Trash className={tm("cursor-pointer w-[--iconSize] h-[--iconSize] fill-lightText dark:fill-darkText", deleted && "fill-red-600 dark:fill-red-600")} onClick={deleteSelf} />
           </div>
           {/* List all the cards */}
-          {cards ? cards.map((card) => (
+          {cards ? cards.map((card, index) => (
             card ? (
               <Card
                 key={card.id} id={card.id}
@@ -179,10 +182,11 @@ const List = React.forwardRef(({id, name, callbackCardRefs, callbackListRefs, cl
                 name={card.name}
                 ref={(ref) => {
                   const cardRefs = callbackCardRefs()
-                  cardRefs.current.push(ref)}
-                }
+                  cardRefs.current.push(ref)
+                }}
                 callbackCardRefs={callbackCardRefs}
                 callbackListRefs={callbackListRefs}
+                focus={(index === cards.length - 1 && focusCard) ? true : false}
                 className="flex-shrink-0 col-span-2"
               />
             ) : null
