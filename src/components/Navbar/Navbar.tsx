@@ -50,7 +50,6 @@ export default function Navbar(){
   }, [boards])
 
   async function selectBoard(event){
-    console.log(event.target)
     const boardId = event.target.dataset.id
     if(boardId){
       await db.miscellaneous.update(1, {

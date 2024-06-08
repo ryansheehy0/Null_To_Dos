@@ -103,7 +103,7 @@ export default function Provider({children}){
         const boardIds = boards.map(board => {return board.id})
         await db.miscellaneous.add({
           theme: "dark",
-          open: false,
+          open: true,
           boardId: 1,
           boardOrder: boardIds
         })

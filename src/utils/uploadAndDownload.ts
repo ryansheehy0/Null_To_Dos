@@ -72,7 +72,6 @@ export async function upload(db, event){
     const uploadedJson = await readFile(uploadedFile)
     // Convert json to obj
     const uploadedObj = JSON.parse(uploadedJson)
-    console.log(uploadedObj)
     // Validate input file is correct
     if(!isObjUploadedObj(uploadedObj)) return
     // Set db with values from the object
@@ -92,6 +91,9 @@ export async function upload(db, event){
       for(const card of uploadedObj.cards){
         await db.cards.add(card)
       }
+      // Add miscellaneous
+      await db.miscellaneous.clear()
+      await db.miscellaneous.add(uploadedObj.miscellaneous[0])
     })
   }catch(error){
     console.error(error)
