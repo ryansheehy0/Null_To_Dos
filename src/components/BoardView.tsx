@@ -48,7 +48,7 @@ export default function BoardView(){
 
   return (
     <div
-      className={tm("w-[calc(100vw-var(--cardHeight))] overflow-auto h-screen bg-gradient-to-br from-blue-600 to-fuchsia-500 absolute top-0 right-0 flex justify-start",
+      className={tm("w-[calc(100vw-var(--cardHeight))] overflow-auto h-screen bg-gradient-to-br from-[#00FFFF] to-[#FF00FF] absolute top-0 right-0 flex justify-start",
       open && "w-[calc(100vw-(var(--cardWidth)+(2*var(--cardSpacing))))]")}>
       {/* Display all the lists in the board */}
       {lists ? lists.map((list, index) => (
